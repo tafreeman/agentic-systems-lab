@@ -356,7 +356,7 @@ docs/reports/
 .venv314/
 
 # Workflow run artifacts (generated per-run)
-runs/
+/runs/
 
 # Run logs (PIDs, etc.)
 agentic-workflows-v2/.run-logs/
