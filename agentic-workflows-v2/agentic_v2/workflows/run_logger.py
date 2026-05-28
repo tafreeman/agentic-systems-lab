@@ -165,8 +165,7 @@ class RunLogger:
             extra=extra,
         )
 
-        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        filename = f"{ts}_{result.workflow_name}_{result.overall_status.value}.json"
+        filename = f"{result.workflow_id}.json"
         path = self._runs_dir / filename
 
         path.write_text(
@@ -177,9 +176,14 @@ class RunLogger:
         return path
 
     def list_runs(self, workflow_name: str | None = None) -> list[Path]:
-        """List all logged run files, optionally filtered by workflow name."""
-        pattern = f"*_{workflow_name}_*.json" if workflow_name else "*.json"
-        return sorted(self._runs_dir.glob(pattern))
+        """List all logged run files.
+
+        The ``workflow_name`` parameter is kept for API compatibility but no
+        longer filters by filename (filenames are now ``{workflow_id}.json``).
+        Callers that need workflow-name filtering should inspect the loaded
+        record's ``workflow_name`` field.
+        """
+        return sorted(self._runs_dir.glob("*.json"))
 
     def load_run(self, path: Path) -> dict[str, Any]:
         """Load a run record from disk."""

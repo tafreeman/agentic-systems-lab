@@ -28,12 +28,13 @@ from agentic_v2.workflows.run_logger import (
 
 def _result(
     *,
+    workflow_id: str = "wf-test-1",
     status: StepStatus = StepStatus.SUCCESS,
     steps: list[StepResult] | None = None,
     end_time: datetime | None = None,
 ) -> WorkflowResult:
     return WorkflowResult(
-        workflow_id="wf-test-1",
+        workflow_id=workflow_id,
         workflow_name="test_workflow",
         overall_status=status,
         steps=steps or [],
@@ -317,31 +318,29 @@ class TestRunLogger:
         data = json.loads(path.read_text(encoding="utf-8"))
         assert data["workflow_name"] == "test_workflow"
 
-    def test_log_filename_contains_workflow_and_status(self, tmp_path):
-        """ADR-008 Phase 3: filename encodes workflow name and status."""
+    def test_log_filename_is_workflow_id(self, tmp_path):
+        """Filename is {workflow_id}.json for direct lookup by run_id."""
         rl = RunLogger(runs_dir=tmp_path)
-        path = rl.log(_result())
-        assert "test_workflow" in path.name
-        assert "success" in path.name
+        result = _result()
+        path = rl.log(result)
+        assert path.name == f"{result.workflow_id}.json"
 
     def test_list_runs_returns_all(self, tmp_path):
         """ADR-008 Phase 3: list_runs returns all JSON files."""
         rl = RunLogger(runs_dir=tmp_path)
-        rl.log(_result())
-        rl.log(_result(status=StepStatus.FAILED))
+        rl.log(_result(workflow_id="run-a"))
+        rl.log(_result(workflow_id="run-b", status=StepStatus.FAILED))
         assert len(rl.list_runs()) == 2
 
-    def test_list_runs_filters_by_workflow_name(self, tmp_path):
-        """ADR-008 Phase 3: list_runs filters by workflow name."""
+    def test_list_runs_workflow_name_param_does_not_filter(self, tmp_path):
+        """list_runs returns all JSON files; workflow_name param kept for compat."""
         rl = RunLogger(runs_dir=tmp_path)
         rl.log(_result())
-        # Create a file with a different workflow name pattern
-        (tmp_path / "20260317T000000Z_other_wf_success.json").write_text(
+        (tmp_path / "other.json").write_text(
             json.dumps({"workflow_name": "other_wf", "status": "success"}),
             encoding="utf-8",
         )
-        filtered = rl.list_runs(workflow_name="test_workflow")
-        assert all("test_workflow" in p.name for p in filtered)
+        assert len(rl.list_runs(workflow_name="test_workflow")) == 2
 
     def test_load_run_roundtrips(self, tmp_path):
         """ADR-008 Phase 3: load_run reads back what log() wrote."""
