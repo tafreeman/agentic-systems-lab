@@ -251,6 +251,21 @@ def save_workflow_document(
 # ---------------------------------------------------------------------------
 
 
+def _parse_loop_max(value: Any) -> int:
+    """Parse loop_max from YAML, returning a positive int.
+
+    Template expressions (${...}) cannot be resolved statically, so they fall
+    back to the default of 3 for graph compilation.  The native loader path
+    handles runtime resolution of expressions via loop_max_expr metadata.
+    """
+    if isinstance(value, str) and value.strip().startswith("${"):
+        return 3
+    try:
+        return max(1, int(value))
+    except (TypeError, ValueError):
+        return 3
+
+
 def _parse_file(path: Path) -> WorkflowConfig:
     with open(path, encoding="utf-8") as f:
         data = yaml.safe_load(f)
@@ -297,7 +312,7 @@ def _parse(data: dict[str, Any], default_name: str) -> WorkflowConfig:
                 outputs=dict(raw.get("outputs", {})),
                 when=raw.get("when"),
                 loop_until=raw.get("loop_until"),
-                loop_max=max(1, int(raw.get("loop_max", 3))),
+                loop_max=_parse_loop_max(raw.get("loop_max", 3)),
                 tools=(
                     raw.get("tools") if isinstance(raw.get("tools"), list) else None
                 ),
