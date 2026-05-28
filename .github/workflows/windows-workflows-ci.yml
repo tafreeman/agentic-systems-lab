@@ -1,6 +1,7 @@
 name: Windows Workflow Verification
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, agenticv2]
     paths:
@@ -9,6 +10,8 @@ on:
       - 'agentic-workflows-v2/scripts/setup-dev.ps1'
       - 'agentic-workflows-v2/scripts/fixtures/**'
       - '.github/workflows/windows-workflows-ci.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
   pull_request:
     branches: [main, agenticv2]
     paths:
@@ -17,6 +20,8 @@ on:
       - 'agentic-workflows-v2/scripts/setup-dev.ps1'
       - 'agentic-workflows-v2/scripts/fixtures/**'
       - '.github/workflows/windows-workflows-ci.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
 
 jobs:
   verify-workflows:
