@@ -1,0 +1,202 @@
+{
+  "failed_steps": [],
+  "final_output": {
+    "steps": {
+      "complexity_analysis": {
+        "outputs": {
+          "agent": "tier1_analyzer",
+          "description": "Analyze code complexity",
+          "note": "No LLM backend configured",
+          "status": "llm_unavailable"
+        },
+        "status": "success"
+      },
+      "generate_summary": {
+        "outputs": {
+          "agent": "tier2_summarizer",
+          "description": "Generate human-readable review summary",
+          "note": "No LLM backend configured",
+          "status": "llm_unavailable"
+        },
+        "status": "success"
+      },
+      "parse_code": {
+        "outputs": {
+          "code_metrics": {
+            "chars": 0,
+            "class_count": 0,
+            "function_count": 0,
+            "import_count": 0,
+            "lines": 0
+          },
+          "parsed_ast": {
+            "classes": [],
+            "functions": [],
+            "imports": [],
+            "language": "python",
+            "raw_source": ""
+          }
+        },
+        "status": "success"
+      },
+      "review_code": {
+        "outputs": {
+          "agent": "tier2_reviewer",
+          "description": "Deep code review with suggestions",
+          "note": "No LLM backend configured",
+          "review_report": {
+            "overall_status": "NEEDS_FIXES"
+          },
+          "status": "llm_unavailable"
+        },
+        "status": "success"
+      },
+      "style_check": {
+        "outputs": {
+          "agent": "tier1_linter",
+          "description": "Check code style and formatting",
+          "note": "No LLM backend configured",
+          "status": "llm_unavailable"
+        },
+        "status": "success"
+      }
+    }
+  },
+  "metadata": {},
+  "overall_status": "success",
+  "steps": [
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
+        "file_path": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "code_metrics": {
+          "chars": 0,
+          "class_count": 0,
+          "function_count": 0,
+          "import_count": 0,
+          "lines": 0
+        },
+        "parsed_ast": {
+          "classes": [],
+          "functions": [],
+          "imports": [],
+          "language": "python",
+          "raw_source": ""
+        }
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "parse_code",
+      "tier": 0
+    },
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
+        "metrics": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "agent": "tier1_analyzer",
+        "description": "Analyze code complexity",
+        "note": "No LLM backend configured",
+        "status": "llm_unavailable"
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "complexity_analysis",
+      "tier": 1
+    },
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
+        "ast": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "agent": "tier1_linter",
+        "description": "Check code style and formatting",
+        "note": "No LLM backend configured",
+        "status": "llm_unavailable"
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "style_check",
+      "tier": 1
+    },
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
+        "ast": null,
+        "complexity": null,
+        "style_issues": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "agent": "tier2_reviewer",
+        "description": "Deep code review with suggestions",
+        "note": "No LLM backend configured",
+        "review_report": {
+          "overall_status": "NEEDS_FIXES"
+        },
+        "status": "llm_unavailable"
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "review_code",
+      "tier": 2
+    },
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
+        "review": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "agent": "tier2_summarizer",
+        "description": "Generate human-readable review summary",
+        "note": "No LLM backend configured",
+        "status": "llm_unavailable"
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "generate_summary",
+      "tier": 2
+    }
+  ],
+  "success_rate": 100.0,
+  "total_retries": 0,
+  "workflow_name": "code_review"
+}

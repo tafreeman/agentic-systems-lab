@@ -1,0 +1,44 @@
+{
+  "properties": {
+    "grade": {
+      "title": "Grade",
+      "type": "string"
+    },
+    "overall_score": {
+      "title": "Overall Score",
+      "type": "number"
+    },
+    "rubric": {
+      "title": "Rubric",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "type": {
+      "const": "evaluation_complete",
+      "default": "evaluation_complete",
+      "title": "Type",
+      "type": "string"
+    },
+    "weighted_score": {
+      "title": "Weighted Score",
+      "type": "number"
+    }
+  },
+  "required": [
+    "run_id",
+    "rubric",
+    "weighted_score",
+    "overall_score",
+    "grade",
+    "timestamp"
+  ],
+  "title": "EvaluationCompleteEvent",
+  "type": "object"
+}

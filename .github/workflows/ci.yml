@@ -1,0 +1,194 @@
+name: CI
+
+# CI: verifies Python imports, frontend build, ruff lint, and 80% coverage gate.
+# Integration and slow tests are excluded from the fast CI pass.
+# Type checking (mypy --strict) enforcement is tracked in docs/adr/ADR-013.
+
+on:
+  push:
+    branches: [main, agenticv2]
+  pull_request:
+    branches: [main, agenticv2]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  python-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "."
+          pip install -e "./agentic-workflows-v2[dev,server,langchain]"
+          pip install -e "./agentic-v2-eval[dev]"
+      - name: Verify critical imports
+        run: |
+          python -c "
+          import agentic_v2
+          from agentic_v2.core.protocols import AgentProtocol, ToolProtocol, ExecutionEngine
+          from agentic_v2.workflows import WorkflowLoader
+          print('Critical imports OK')
+          "
+      - name: Run smoke tests
+        run: |
+          python -m pytest agentic-workflows-v2/tests/test_tier0.py -q
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: agentic-workflows-v2/ui/package-lock.json
+      - name: Install and build UI
+        run: |
+          cd agentic-workflows-v2/ui
+          npm ci
+          npm run build
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "."
+          pip install -e "./agentic-workflows-v2[dev]"
+      - name: Ruff lint check
+        run: |
+          cd agentic-workflows-v2
+          python -m ruff check agentic_v2/ tests/
+
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "."
+          pip install -e "./agentic-workflows-v2[dev]"
+      - name: Run tests with coverage
+        run: |
+          cd agentic-workflows-v2
+          python -m pytest tests/ -q \
+            -m "not integration and not slow" \
+            --cov=agentic_v2 \
+            --cov-report=term-missing \
+            --cov-fail-under=80
+
+  wire-format-drift:
+    # Sprint B #3 — prevent silent Python <-> TypeScript wire-format drift.
+    # `agentic_v2/contracts/events.py` is the source of truth; this job
+    # regenerates the committed JSON Schema + TS mirror and fails the PR if
+    # the working tree no longer matches what's checked in.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: agentic-workflows-v2/ui/package-lock.json
+      - name: Install backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "."
+          pip install -e "./agentic-workflows-v2[dev]"
+      - name: Install UI
+        run: |
+          cd agentic-workflows-v2/ui
+          npm ci
+      - name: Regenerate Python JSON schema
+        run: |
+          cd agentic-workflows-v2
+          python scripts/generate_ts_types.py
+      - name: Regenerate TypeScript types
+        run: |
+          cd agentic-workflows-v2/ui
+          npm run generate:types
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code -- \
+              agentic-workflows-v2/tests/schemas/events.schema.json \
+              agentic-workflows-v2/ui/src/api/events.generated.ts; then
+            echo "::error::Wire-format drift detected. Run 'python scripts/generate_ts_types.py' and 'npm --prefix ui run generate:types' from agentic-workflows-v2/ and commit the result."
+            exit 1
+          fi
+
+  e2e-streaming:
+    # Epic 2 Story 2.2 — Playwright streaming PR gate.
+    # Runs the streaming spec 5× to catch flakes early. The rolling nightly
+    # 50× job (Story 2.4) measures the long-term flake rate.
+    #
+    # LLM credentials: GITHUB_TOKEN + `models: read` permission let the
+    # runtime reach GitHub Models for a zero-config LLM backend in CI. When
+    # placeholder-mode support is implemented (tracked separately), this
+    # dependency can be dropped.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      models: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: agentic-workflows-v2/ui/package-lock.json
+      - name: Install backend (server extra)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "."
+          pip install -e "./agentic-workflows-v2[dev,server,langchain]"
+      - name: Install UI + Playwright
+        run: |
+          cd agentic-workflows-v2/ui
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Run streaming E2E 5×
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd agentic-workflows-v2/ui
+          npm run test:e2e:5x
+      - name: Upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            agentic-workflows-v2/ui/test-results/
+            agentic-workflows-v2/ui/playwright-report/
+            agentic-workflows-v2/ui/e2e-results.json
+          retention-days: 14
+          if-no-files-found: ignore

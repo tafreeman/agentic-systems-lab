@@ -1,0 +1,49 @@
+# Pre-commit configuration: formatting + linting + type checks
+repos:
+  - repo: https://github.com/psf/black
+    rev: 26.1.0
+    hooks:
+      - id: black
+        args: ["--line-length", "88"]
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.15.0
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+
+  - repo: https://github.com/myint/docformatter
+    rev: v1.7.7
+    hooks:
+      - id: docformatter
+        args: ["--in-place", "--recursive", "--wrap-summaries", "88"]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+
+  # TODO(tech-debt): re-enable mypy pre-commit hook once module-level type
+  # debt across tools/builtin/ and integrations/ is cleared. The dedicated
+  # `type-check` CI job still runs mypy against agentic_v2/ with module
+  # overrides in agentic-workflows-v2/pyproject.toml.
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.19.1
+  #   hooks:
+  #     - id: mypy
+  #       args: ["--ignore-missing-imports"]
+
+  # TODO(tech-debt): re-enable pydocstyle once existing internal methods
+  # have Google-convention docstrings added. Currently ~hundreds of D102/
+  # D107/D205/D415 violations across agentic_v2/server/ and tools/builtin/.
+  # - repo: https://github.com/PyCQA/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #     - id: pydocstyle
+  #       args: ["--convention=google"]
