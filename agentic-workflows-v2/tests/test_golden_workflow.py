@@ -33,11 +33,20 @@ _VOLATILE_KEYS = {
 
 
 def _strip_volatile(obj: object) -> object:
-    """Recursively remove volatile keys so golden comparison is stable."""
+    """Recursively remove volatile keys and normalize step lists for stable comparison.
+
+    Steps within a workflow run in parallel tiers; their order in the result list
+    is non-deterministic across platforms/runs. Sorting by step_name ensures
+    the golden comparison is stable regardless of execution order.
+    """
     if isinstance(obj, dict):
-        return {
-            k: _strip_volatile(v) for k, v in obj.items() if k not in _VOLATILE_KEYS
-        }
+        result = {k: _strip_volatile(v) for k, v in obj.items() if k not in _VOLATILE_KEYS}
+        if "steps" in result and isinstance(result["steps"], list):
+            result["steps"] = sorted(
+                result["steps"],
+                key=lambda s: s.get("step_name", "") if isinstance(s, dict) else "",
+            )
+        return result
     if isinstance(obj, list):
         return [_strip_volatile(item) for item in obj]
     return obj

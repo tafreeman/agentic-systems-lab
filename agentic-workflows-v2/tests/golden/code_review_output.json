@@ -70,6 +70,52 @@
       "error": null,
       "error_type": null,
       "input_data": {
+        "metrics": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "agent": "tier1_analyzer",
+        "description": "Analyze code complexity",
+        "note": "No LLM backend configured",
+        "status": "llm_unavailable"
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "complexity_analysis",
+      "tier": 1
+    },
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
+        "review": null
+      },
+      "is_complete": true,
+      "is_failed": false,
+      "is_success": true,
+      "metadata": {},
+      "model_used": null,
+      "output_data": {
+        "agent": "tier2_summarizer",
+        "description": "Generate human-readable review summary",
+        "note": "No LLM backend configured",
+        "status": "llm_unavailable"
+      },
+      "retry_count": 0,
+      "status": "success",
+      "step_name": "generate_summary",
+      "tier": 2
+    },
+    {
+      "agent_role": null,
+      "error": null,
+      "error_type": null,
+      "input_data": {
         "file_path": null
       },
       "is_complete": true,
@@ -97,52 +143,6 @@
       "status": "success",
       "step_name": "parse_code",
       "tier": 0
-    },
-    {
-      "agent_role": null,
-      "error": null,
-      "error_type": null,
-      "input_data": {
-        "metrics": null
-      },
-      "is_complete": true,
-      "is_failed": false,
-      "is_success": true,
-      "metadata": {},
-      "model_used": null,
-      "output_data": {
-        "agent": "tier1_analyzer",
-        "description": "Analyze code complexity",
-        "note": "No LLM backend configured",
-        "status": "llm_unavailable"
-      },
-      "retry_count": 0,
-      "status": "success",
-      "step_name": "complexity_analysis",
-      "tier": 1
-    },
-    {
-      "agent_role": null,
-      "error": null,
-      "error_type": null,
-      "input_data": {
-        "ast": null
-      },
-      "is_complete": true,
-      "is_failed": false,
-      "is_success": true,
-      "metadata": {},
-      "model_used": null,
-      "output_data": {
-        "agent": "tier1_linter",
-        "description": "Check code style and formatting",
-        "note": "No LLM backend configured",
-        "status": "llm_unavailable"
-      },
-      "retry_count": 0,
-      "status": "success",
-      "step_name": "style_check",
-      "tier": 1
     },
     {
       "agent_role": null,
@@ -177,7 +177,7 @@
       "error": null,
       "error_type": null,
       "input_data": {
-        "review": null
+        "ast": null
       },
       "is_complete": true,
       "is_failed": false,
@@ -185,15 +185,15 @@
       "metadata": {},
       "model_used": null,
       "output_data": {
-        "agent": "tier2_summarizer",
-        "description": "Generate human-readable review summary",
+        "agent": "tier1_linter",
+        "description": "Check code style and formatting",
         "note": "No LLM backend configured",
         "status": "llm_unavailable"
       },
       "retry_count": 0,
       "status": "success",
-      "step_name": "generate_summary",
-      "tier": 2
+      "step_name": "style_check",
+      "tier": 1
     }
   ],
   "success_rate": 100.0,
