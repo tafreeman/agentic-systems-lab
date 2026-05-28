@@ -40,6 +40,7 @@ dev = [
 
 [tool.uv.workspace]
 members = [
+    ".",
     "agentic-workflows-v2",
     "agentic-v2-eval",
 ]
