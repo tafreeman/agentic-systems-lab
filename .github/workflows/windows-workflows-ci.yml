@@ -5,8 +5,7 @@ on:
   push:
     branches: [main, agenticv2]
     paths:
-      - 'agentic-workflows-v2/agentic_v2/workflows/definitions/**'
-      - 'agentic-workflows-v2/agentic_v2/cli/**'
+      - 'agentic-workflows-v2/agentic_v2/**'
       - 'agentic-workflows-v2/scripts/setup-dev.ps1'
       - 'agentic-workflows-v2/scripts/fixtures/**'
       - '.github/workflows/windows-workflows-ci.yml'
@@ -15,8 +14,7 @@ on:
   pull_request:
     branches: [main, agenticv2]
     paths:
-      - 'agentic-workflows-v2/agentic_v2/workflows/definitions/**'
-      - 'agentic-workflows-v2/agentic_v2/cli/**'
+      - 'agentic-workflows-v2/agentic_v2/**'
       - 'agentic-workflows-v2/scripts/setup-dev.ps1'
       - 'agentic-workflows-v2/scripts/fixtures/**'
       - '.github/workflows/windows-workflows-ci.yml'
