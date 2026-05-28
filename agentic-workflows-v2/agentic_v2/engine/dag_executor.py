@@ -253,7 +253,7 @@ class DAGExecutor:
                             "duration_ms": step_result.duration_ms,
                             "model_used": step_result.model_used,
                             "tokens_used": step_result.metadata.get("tokens_used"),
-                            "tier": step_result.tier,
+                            "tier": str(step_result.tier) if step_result.tier is not None else None,
                             "input": step_result.input_data,
                             "output": step_result.output_data,
                             "error": step_result.error,

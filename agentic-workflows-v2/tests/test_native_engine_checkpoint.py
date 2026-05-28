@@ -346,8 +346,12 @@ class TestNativeEngineCheckpoint:
         assert result_1.overall_status == StepStatus.SUCCESS
         assert result_2.overall_status == StepStatus.SUCCESS
 
-        # Allow fire-and-forget checkpoint writes to complete
-        await asyncio.sleep(0.15)
+        # Drain all pending fire-and-forget checkpoint tasks instead of
+        # relying on a fixed sleep that can fail on loaded CI runners.
+        await asyncio.sleep(0)
+        pending = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+        if pending:
+            await asyncio.gather(*pending, return_exceptions=True)
 
         store = CheckpointStore(db_path)
 

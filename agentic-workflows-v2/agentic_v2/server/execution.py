@@ -168,7 +168,7 @@ async def _run_via_native_adapter(
     loader = WorkflowLoader()
     workflow_def = loader.load(workflow_name)
     dag = workflow_def.dag
-    ctx = ExecutionContext(variables=dict(workflow_inputs))
+    ctx = ExecutionContext(_variables=dict(workflow_inputs))
 
     engine = get_registry().get_adapter(adapter_name)
     raw = await engine.execute(
