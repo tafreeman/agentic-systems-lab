@@ -73,10 +73,6 @@ Changes flow one direction: prototype here, upstream when stable.
 
 ---
 
-## Overview
-
----
-
 ## Architecture
 
 ```mermaid
@@ -454,13 +450,6 @@ langchain = ["langchain", "langchain-openai", "langchain-anthropic", "langchain-
 tracing   = ["opentelemetry-sdk", "opentelemetry-exporter-otlp-proto-grpc"]
 claude    = ["anthropic", "claude-agent-sdk"]
 ```
-
----
-
-## Agent Guidance
-
-- Start with `AGENTS.md` for a map of human-facing agent surfaces and how they relate to the `.claude/` configuration.
-- Machine-loaded behavioral rules live in `.claude/rules/`; keep repo-wide standards there and link to them from subproject docs as needed.
 
 ---
 
