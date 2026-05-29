@@ -168,7 +168,7 @@ def benchmark(
 
     # Timed runs
     times: list[float] = []
-    result: T = None  # type: ignore
+    result: T = None  # type: ignore[assignment]
 
     for _ in range(iterations):
         start = time.perf_counter()

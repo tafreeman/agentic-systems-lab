@@ -21,7 +21,7 @@ __version__ = "0.1.0"
 # Some tooling/tests reference `tools.evaluation_agent.*`.
 # The implementation lives in `tools.agents.evaluation_agent`.
 try:
-    from tools.agents import evaluation_agent as evaluation_agent  # type: ignore
+    from tools.agents import evaluation_agent as evaluation_agent  # type: ignore[attr-defined]
 except Exception:
     # Avoid import-time failures if optional deps are missing.
-    evaluation_agent = None  # type: ignore
+    evaluation_agent = None  # type: ignore[assignment]
