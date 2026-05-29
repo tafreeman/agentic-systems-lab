@@ -1,9 +1,13 @@
 name: Performance Benchmark
 
 on:
-  # Disabled: tracked in <issue placeholder — I will fill in the issue
-  #   number after creating the issue>
-  # Re-enable once: re-enable push/pull_request triggers once baseline comparison is reliable. Manual/scheduled only for now.
+  # Intentionally manual-only (run from the Actions tab). This is a wall-clock
+  # microbenchmark, and on shared GitHub-hosted runners timing variance routinely
+  # exceeds the 20% regression threshold — gating every push/PR on it would
+  # produce false-positive regressions unrelated to the change under review.
+  # Treat its output as an informational signal, not a blocking gate. Promote to
+  # push/pull_request (or add a `schedule:`) once the comparison is made
+  # runner-noise-tolerant (e.g. statistical thresholds or a dedicated runner).
   workflow_dispatch:
     inputs:
       max_regression_percent:

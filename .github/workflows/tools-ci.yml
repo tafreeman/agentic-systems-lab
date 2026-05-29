@@ -1,9 +1,16 @@
 name: Tools Package CI
 
 on:
-  # Disabled: tracked in <issue placeholder — I will fill in the issue
-  #   number after creating the issue>
-  # Re-enable once: re-enable once tools/ lint/test baseline is clean. Currently manual-only to unblock CI.
+  push:
+    branches: [main, agenticv2]
+    paths:
+      - "tools/**"
+      - ".github/workflows/tools-ci.yml"
+  pull_request:
+    branches: [main, agenticv2]
+    paths:
+      - "tools/**"
+      - ".github/workflows/tools-ci.yml"
   workflow_dispatch:
 
 jobs:

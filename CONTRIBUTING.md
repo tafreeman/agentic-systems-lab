@@ -186,7 +186,18 @@ Docs must be runnable or falsifiable. Command blocks must actually work. Diagram
 
 ---
 
-## 9. Need help
+## 9. AI-assisted development
+
+This is a research lab, and parts of it were built with AI-assisted tooling (LLM coding assistants) under human review. We disclose this openly rather than hide it.
+
+- **Human ownership.** Every change — AI-assisted or hand-written — is owned by the contributor who opens the PR. You are accountable for what you submit: you must understand it, be able to explain it, and stand behind its correctness and licensing.
+- **AI output is untrusted input.** Consistent with §8, treat anything an assistant generates as a draft to be verified, not trusted code. It passes the same gates as everything else — lint, types, tests, coverage, and review (CONTRIBUTING §4) — before it lands.
+- **No lowered bar.** AI assistance is not a justification for skipping tests, ADRs, or docs. The review standard is identical regardless of how the code was produced.
+- **Disclosure.** If a change is substantially AI-generated, a one-line note in the PR description is welcome (not required) so reviewers can calibrate scrutiny.
+
+---
+
+## 10. Need help
 
 - Open a discussion or issue on the repository.
 - Read [`docs/GLOSSARY.md`](docs/GLOSSARY.md) for domain terms.
@@ -195,7 +206,7 @@ Docs must be runnable or falsifiable. Command blocks must actually work. Diagram
 
 ---
 
-## 10. PR checklist
+## 11. PR checklist
 
 Copy into your PR description:
 

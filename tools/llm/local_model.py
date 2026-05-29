@@ -551,7 +551,9 @@ Return ONLY valid JSON in this exact format:
                 continue
 
             defn = GEVAL_CRITERIA[criterion]
-            steps_text = "\n".join(f"  {i+1}. {s}" for i, s in enumerate(defn["steps"]))
+            steps_text = "\n".join(
+                f"  {i + 1}. {s}" for i, s in enumerate(defn["steps"])
+            )
 
             geval_prompt = f"""You are evaluating a prompt for {criterion.upper()}.
 

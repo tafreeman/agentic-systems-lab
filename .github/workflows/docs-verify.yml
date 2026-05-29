@@ -1,9 +1,15 @@
 name: Docs verification
 
 on:
-  # Disabled: tracked in <issue placeholder — I will fill in the issue
-  #   number after creating the issue>
-  # Re-enable once: re-enable docs verification once link/spell/secret baselines stabilise. Manual-only for now.
+  # Intentionally manual-only (run from the Actions tab). This job is NOT a
+  # blocking PR gate yet because two of its checks are non-deterministic on a
+  # public repo:
+  #   - lychee external-link check: flaky against third-party sites (downtime,
+  #     redirects, rate limits) — would fail PRs for reasons outside our control.
+  #   - cspell: no project dictionary is committed, so it flags domain terms en masse.
+  # The git-secrets docs scan is reliable; the blocker is link + spell baselines.
+  # Promote to push/pull_request once a cspell dictionary and a lychee
+  # ignore/allow-list make the run deterministic.
   workflow_dispatch:
 
 jobs:

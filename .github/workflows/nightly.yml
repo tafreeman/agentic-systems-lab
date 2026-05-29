@@ -1,5 +1,11 @@
 name: Nightly E2E Reliability
 
+# This is a RELEASE-CUT gate, not a PR gate. It runs the streaming E2E flow 50×
+# and enforces a rolling 0.5% flake-rate budget over a 7-day window. Per
+# CONTRIBUTING §4, a failure here blocks cutting a release — it does NOT block
+# PRs or indicate that main is broken. A red run on the Actions tab means
+# "investigate flake rate before the next release", not "the project is down".
+
 on:
   schedule:
     - cron: '0 7 * * *'  # 07:00 UTC (≈ 03:00 ET in EDT; 02:00 ET in EST)

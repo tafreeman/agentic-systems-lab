@@ -171,7 +171,7 @@ def transcribe_audio(
         import soundfile as sf
     except ImportError:
         raise ImportError(
-            "soundfile not installed. Install with:\n" "  pip install soundfile"
+            "soundfile not installed. Install with:\n  pip install soundfile"
         )
 
     # Find model path
@@ -324,7 +324,7 @@ def upscale_image(
 
     if not esrgan_path.exists():
         raise FileNotFoundError(
-            f"ESRGAN model not found at: {esrgan_path}\n" "Download from AI Gallery."
+            f"ESRGAN model not found at: {esrgan_path}\nDownload from AI Gallery."
         )
 
     if verbose:
