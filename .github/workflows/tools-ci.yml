@@ -1,8 +1,9 @@
 name: Tools Package CI
 
 on:
-  # TODO(tech-debt): re-enable once tools/ lint/test baseline is clean.
-  # Currently manual-only to unblock CI.
+  # Disabled: tracked in <issue placeholder — I will fill in the issue
+  #   number after creating the issue>
+  # Re-enable once: re-enable once tools/ lint/test baseline is clean. Currently manual-only to unblock CI.
   workflow_dispatch:
 
 jobs:

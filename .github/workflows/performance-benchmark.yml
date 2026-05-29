@@ -1,8 +1,9 @@
 name: Performance Benchmark
 
 on:
-  # TODO(tech-debt): re-enable push/pull_request triggers once baseline
-  # comparison is reliable. Manual/scheduled only for now.
+  # Disabled: tracked in <issue placeholder — I will fill in the issue
+  #   number after creating the issue>
+  # Re-enable once: re-enable push/pull_request triggers once baseline comparison is reliable. Manual/scheduled only for now.
   workflow_dispatch:
     inputs:
       max_regression_percent:

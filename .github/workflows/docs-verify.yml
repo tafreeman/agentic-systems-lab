@@ -1,8 +1,9 @@
 name: Docs verification
 
 on:
-  # TODO(tech-debt): re-enable docs verification once link/spell/secret
-  # baselines stabilise. Manual-only for now.
+  # Disabled: tracked in <issue placeholder — I will fill in the issue
+  #   number after creating the issue>
+  # Re-enable once: re-enable docs verification once link/spell/secret baselines stabilise. Manual-only for now.
   workflow_dispatch:
 
 jobs:
