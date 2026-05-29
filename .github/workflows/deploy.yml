@@ -21,6 +21,9 @@ on:
         required: true
         default: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 permissions:
   contents: read
 

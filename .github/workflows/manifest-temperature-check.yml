@@ -8,6 +8,9 @@ on:
     paths:
       - 'run-manifest.yaml'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   check-manifest:
     runs-on: ubuntu-latest
