@@ -461,6 +461,8 @@ See [CHANGELOG.md](CHANGELOG.md) for a user-facing history of features, improvem
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for monorepo-wide contribution guidelines — local gates, commit format, when an ADR is required, and the PR checklist. Package-specific notes are at [`agentic-workflows-v2/CONTRIBUTING.md`](agentic-workflows-v2/CONTRIBUTING.md).
 
+**Built with AI assistance.** Parts of this lab were developed with LLM coding assistants under human review; every change passes the same lint/type/test/coverage gates regardless of how it was produced. See [CONTRIBUTING.md §9](CONTRIBUTING.md#9-ai-assisted-development) for the full policy.
+
 ## Roadmap & Known Limitations
 
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — epics shipped in April 2026, the Epic 4 numbering gap, and proposed next work.

@@ -14,7 +14,7 @@ This document tracks breaking changes since v0.3.0. One entry per migration, new
 
 The presentation / deck / slide builder subsystem was extracted from this monorepo into a separate repository.
 
-- **Commit in this repo:** `764d86b refactor: extract presentation/ to standalone repo`.
+- **What changed here:** the `presentation/` subsystem was removed from this repo. (The extraction predates this repo's current squashed history, so there is no single commit hash to cite.)
 - **Files removed from this repo:** 245. The deck builder, its TypeScript sources, the layout registry, and the docs have all moved. The `presentation/` directory still exists but contains only leftover theme-collection scripts (`scripts/collect_themes.mjs`, `collect-targets.json`, etc.) and the `src/tokens/raw-themes/` data bundle — pending a follow-up cleanup PR. Do not treat these leftovers as authoritative; the authoritative copies live in the new repo.
 - **New home:** separate repository; check that repository changelog for the first tracked release.
 
