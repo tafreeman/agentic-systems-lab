@@ -69,8 +69,8 @@ A bare `pip install -e ".[dev,server]"` will succeed, but any `--adapter langcha
 - **Surface:** `agentic_v2/langchain/` imports are guarded with `try/except ImportError`, but the adapter registration path surfaces the error late.
 - **Risk:** Confusing first-run failure if a contributor installed minimal extras.
 - **Workaround:** Install with `langchain` extras (included in `just setup`), or pass `--adapter native` explicitly.
-- **Status:** Accepted — the optional extras design is correct for dependency weight.
-- **Upstream fix:** Better error message when the adapter is requested but not installed. Not yet scheduled.
+- **Status:** Accepted — the optional extras design is correct for dependency weight. The adapter is **deprecated** per [ADR-013](adr/ADR-013-foundation-native-dag.md) and emits a `DeprecationWarning` on import; removal target is v2.0 (2026-Q3). The CLI's `--adapter langchain` default is transitional and exists only to avoid breaking existing scripts during the migration window.
+- **Upstream fix:** Migrate workflows to `--adapter native`; the extras install and this limitation disappear at the v2.0 removal milestone.
 
 ---
 

@@ -30,7 +30,7 @@
 
 The `agentic-workflows-v2` package is a production-grade multi-agent workflow runtime built for enterprise environments. It provides:
 
-- **Dual execution engines:** a native DAG executor (Kahn's topological sort algorithm) and a LangGraph state machine engine, both running behind a common adapter interface.
+- **Native DAG executor** as the single strategic engine (Kahn's topological sort algorithm, [ADR-013](adr/ADR-013-foundation-native-dag.md)). A LangGraph state-machine adapter remains for backward compatibility behind the same adapter interface, but is deprecated, emits a `DeprecationWarning` on import, and is targeted for removal in v2.0 (2026-Q3).
 - **8+ LLM provider support** with tier-based smart routing, circuit breakers, and fallback chains.
 - **FastAPI server** with full WebSocket and SSE streaming, a 500-event replay buffer, and a React 19 dashboard.
 - **Full RAG pipeline** including recursive chunking, content-hash deduplication, cosine similarity vector search, BM25 keyword indexing, RRF hybrid fusion, and token-budget assembly.
@@ -205,13 +205,14 @@ The native executor implements topological step ordering via **Kahn's algorithm*
 
 This approach achieves maximum step-level parallelism while respecting explicit dependencies. It has no external dependencies beyond the Python standard library and Pydantic.
 
-#### LangGraph Engine
+#### LangGraph Engine (deprecated)
 
 **Source:** `agentic_v2/langchain/`
+**Status:** Deprecated per [ADR-013](adr/ADR-013-foundation-native-dag.md). Importing this module emits a `DeprecationWarning`; removal target is v2.0 (2026-Q3).
 
-The LangGraph adapter wraps workflow definitions as LangGraph `StateGraph` state machines. Each step becomes a graph node; `depends_on` relationships become graph edges. This engine is used when LangChain-specific features are required (e.g., built-in memory, tool-calling with LangChain tool wrappers, or LangSmith tracing).
+The LangGraph adapter wraps workflow definitions as LangGraph `StateGraph` state machines. Each step becomes a graph node; `depends_on` relationships become graph edges. Historically this engine was used when LangChain-specific features were required (built-in memory, tool-calling with LangChain tool wrappers, LangSmith tracing); new workflows should use the native engine.
 
-The LangGraph adapter satisfies the same `ExecutionEngine` protocol as the native adapter, so the rest of the system is engine-agnostic.
+The LangGraph adapter satisfies the same `ExecutionEngine` protocol as the native adapter, so the rest of the system is engine-agnostic for the remainder of the deprecation window.
 
 ---
 
@@ -511,9 +512,9 @@ The `compare` command is useful for verifying that the native and LangGraph engi
 
 ## Key Design Decisions
 
-### Dual Execution Engine
+### Execution Engine (post-ADR-013)
 
-The system supports two execution engines behind a shared `ExecutionEngine` protocol. The native engine has no optional dependencies and is the default; the LangGraph engine is opt-in and provides richer LangChain ecosystem integration. This allows teams to migrate workflows incrementally and compare outputs using `agentic compare`.
+The system runs behind a shared `ExecutionEngine` protocol. The **native** engine has no optional dependencies and is the **strategic default** under [ADR-013](adr/ADR-013-foundation-native-dag.md). The **LangGraph** engine remains opt-in for backward compatibility during the deprecation window and is the current CLI default purely to avoid breaking existing scripts; it emits a `DeprecationWarning` on import and is targeted for removal in v2.0 (2026-Q3). The `agentic compare` command lets teams migrate workflows incrementally and verify equivalence between engines before cutting over.
 
 ### Additive-Only Contracts
 

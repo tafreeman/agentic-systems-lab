@@ -99,9 +99,9 @@ These are the places where a change ripples across the system. Understand these 
 
 `AdapterRegistry` is a process-wide singleton in [`agentic_v2/adapters/registry.py`](../agentic-workflows-v2/agentic_v2/adapters/registry.py). Engines register with a name (`native`, `langchain`), the CLI resolves `--adapter <name>` at runtime, and tests reset the singleton via an autouse fixture to prevent cross-test leakage.
 
-- **Why it exists:** [ADR-001](adr/ADR-001-002-003-architecture-decisions.md) — dual execution engine.
-- **Current default:** `langchain` (configurable per run).
-- **Direction of travel:** [ADR-013](adr/ADR-013-foundation-native-dag.md) — native DAG as the single long-term engine.
+- **Why it exists:** [ADR-001](adr/ADR-001-002-003-architecture-decisions.md) — dual execution engine (now superseded).
+- **Strategic default:** `native` per [ADR-013](adr/ADR-013-foundation-native-dag.md) — the native DAG executor is the single supported long-term engine.
+- **Current CLI default:** `langchain`, retained transitionally for backward compatibility. Importing `agentic_v2.langchain` emits a `DeprecationWarning`; the adapter is targeted for removal in v2.0 (2026-Q3).
 
 ### 3.2 Typed execution-event wire format
 
