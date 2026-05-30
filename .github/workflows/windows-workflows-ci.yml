@@ -21,9 +21,6 @@ on:
       - 'pyproject.toml'
       - 'uv.lock'
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   verify-workflows:
     name: Verify 6 bundled workflows on Windows
@@ -35,10 +32,10 @@ jobs:
       PYTHONUTF8: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v8.1.0  # v8 drops floating major tags
         with:
           python-version: '3.11'
 
