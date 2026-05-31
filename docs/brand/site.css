@@ -38,8 +38,8 @@ a:hover { color: var(--accent-hover); }
   top: 0;
   z-index: 50;
   background: color-mix(in srgb, var(--bg-deep) 90%, transparent);
-  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
   padding: 0 var(--sp-lg);
   height: 52px;
@@ -201,9 +201,9 @@ a:hover { color: var(--accent-hover); }
   width: 10px; height: 10px;
   border-radius: 50%;
 }
-.term-dot.red    { background: #f87171; }
-.term-dot.yellow { background: #fbbf24; }
-.term-dot.green  { background: #4ade80; }
+.term-dot.red    { background: var(--danger); }
+.term-dot.yellow { background: var(--warning); }
+.term-dot.green  { background: var(--success); }
 .term-label {
   margin-left: 4px;
   font-family: var(--font-mono);
@@ -498,3 +498,84 @@ a:hover { color: var(--accent-hover); }
 @media (max-width: 480px) {
   .hero-title { font-size: 28px; }
 }
+
+/* ============================================================
+   BASE ELEMENT STYLES (moved from tokens.css — tokens stay variables-only)
+   ============================================================ */
+html { background: var(--bg); color: var(--fg-1); }
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-body);
+  color: var(--fg-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-hero);
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+}
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-title);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-title);
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+}
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-section);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-heading);
+  color: var(--fg-1);
+}
+h4, .h4 {
+  font-family: var(--font-display);
+  font-size: var(--fs-card);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-card);
+  color: var(--fg-1);
+}
+
+p {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--fg-1);
+}
+
+.eyebrow {
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.caption {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.5px;
+  line-height: var(--lh-caption);
+  color: var(--fg-2);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-feature-settings: "ss01", "ss02";
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+a:hover { color: var(--accent-hover); border-bottom-color: currentColor; }
