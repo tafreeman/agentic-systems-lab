@@ -5,8 +5,6 @@
   Source: decks-generated/src/tokens/themes.ts (Linear, Paper & Ink themes)
 */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=DM+Serif+Display&display=swap");
-
 :root {
   /* ============ PRIMARY: Console (near-black + clay) ============ */
   /* Lifted from the Prompts UI / repo social-preview cards */
@@ -189,81 +187,3 @@
   --shadow-glow: 0 1px 2px rgba(26,26,46,0.08), 0 0 0 3px var(--accent-glow);
 }
 
-/* ============ Semantic element styles ============ */
-html { background: var(--bg); color: var(--fg-1); }
-body {
-  font-family: var(--font-body);
-  font-size: var(--fs-body);
-  font-weight: var(--fw-regular);
-  line-height: var(--lh-body);
-  color: var(--fg-1);
-  background: var(--bg);
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, .h1 {
-  font-family: var(--font-display);
-  font-size: var(--fs-hero);
-  font-weight: var(--fw-bold);
-  letter-spacing: var(--tracking-hero);
-  line-height: var(--lh-snug);
-  color: var(--fg-1);
-}
-h2, .h2 {
-  font-family: var(--font-display);
-  font-size: var(--fs-title);
-  font-weight: var(--fw-bold);
-  letter-spacing: var(--tracking-title);
-  line-height: var(--lh-snug);
-  color: var(--fg-1);
-}
-h3, .h3 {
-  font-family: var(--font-display);
-  font-size: var(--fs-section);
-  font-weight: var(--fw-bold);
-  line-height: var(--lh-heading);
-  color: var(--fg-1);
-}
-h4, .h4 {
-  font-family: var(--font-display);
-  font-size: var(--fs-card);
-  font-weight: var(--fw-semi);
-  line-height: var(--lh-card);
-  color: var(--fg-1);
-}
-
-p {
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: var(--fg-1);
-}
-
-.eyebrow {
-  font-size: var(--fs-eyebrow);
-  font-weight: var(--fw-bold);
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.caption {
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-medium);
-  letter-spacing: 0.5px;
-  line-height: var(--lh-caption);
-  color: var(--fg-2);
-}
-
-code, pre, .mono {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
-  font-feature-settings: "ss01", "ss02";
-}
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
-}
-a:hover { color: var(--accent-hover); border-bottom-color: currentColor; }

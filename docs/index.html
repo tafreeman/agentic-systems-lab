@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>agentic-systems-lab — R&amp;D prototyping companion</title>
 
+  <!-- Fonts: preconnect for parallel downloads, then stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=DM+Serif+Display&display=swap" />
+
   <!-- Design system: token source (G3 — one import, no drift) -->
   <link rel="stylesheet" href="./brand/site.css" />
 
@@ -24,7 +29,7 @@
      ============================================================ -->
 <nav class="site-nav" aria-label="Site navigation">
   <a class="nav-logo" href="https://github.com/tafreeman" aria-label="tafreeman profile">
-    <span class="icon">&#x2697;</span>
+    <span class="icon" aria-hidden="true">&#x2697;</span>
     <span class="slash">/</span>
     <span class="repo">agentic-systems-lab</span>
   </a>
@@ -95,6 +100,9 @@
         </div>
         <div class="term">
           <span class="prompt">$ </span><span class="cmd">agentic list workflows</span>
+        </div>
+        <div class="term">
+          <span class="prompt">$ </span><span class="cmd">printf '{"input_text":"hello"}\n' &gt; test-input.json</span>
         </div>
         <div class="term">
           <span class="prompt">$ </span><span class="cmd">agentic run test_deterministic --input test-input.json</span>
@@ -261,6 +269,7 @@ python examples/04_model_routing.py</code></pre>
           CLI workflows
         </div>
         <pre><code><span class="cmd-prompt">$ </span>agentic list workflows
+<span class="cmd-prompt">$ </span>printf '{"input_text":"hello"}\n' &gt; test-input.json
 <span class="cmd-prompt">$ </span>agentic run test_deterministic \
     --input test-input.json</code></pre>
       </div>
@@ -323,7 +332,7 @@ python examples/04_model_routing.py</code></pre>
     <span class="footer-sep" aria-hidden="true">/</span>
     <a href="https://tafreeman.github.io/agentic-runtime-platform/">Runtime Platform</a>
     <span class="footer-sep" aria-hidden="true">/</span>
-    <a href="https://github.com/tafreeman">&#128100; tafreeman</a>
+    <a href="https://github.com/tafreeman"><span aria-hidden="true">&#128100;</span> tafreeman</a>
   </div>
   <span>
     agentic-systems-lab &mdash; R&amp;D prototyping lab &mdash; active research
