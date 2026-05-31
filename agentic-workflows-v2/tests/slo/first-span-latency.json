@@ -1,1 +1,26 @@
-{"version":1,"max_records":1000,"records":[]}
+{
+  "version": 1,
+  "max_records": 1000,
+  "records": [
+    {
+      "timestamp": "2026-05-29T07:45:05.506Z",
+      "latency_ms": 792,
+      "commit": "34fe22f1078608f4482e124b03de5e3476c264ed"
+    },
+    {
+      "timestamp": "2026-05-29T08:22:37.087Z",
+      "latency_ms": 589,
+      "commit": "5012714f5e57f4c53c5ab189c9371495fa2e3860"
+    },
+    {
+      "timestamp": "2026-05-30T07:59:18.188Z",
+      "latency_ms": 888,
+      "commit": "152b9a6967eb2af9742c2d296567d3f11f463fc9"
+    },
+    {
+      "timestamp": "2026-05-31T08:08:52.252Z",
+      "latency_ms": 653,
+      "commit": "c164aa298e6c627678a27db8d22f2e324091381a"
+    }
+  ]
+}
