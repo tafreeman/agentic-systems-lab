@@ -19,9 +19,6 @@ on:
 #   contents: write
 #
 # https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 permissions:
   contents: read
   # Write permissions for pull-requests are required for using the `comment-summary-in-pr` option, comment out if you aren't using this option
@@ -32,11 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: 'Dependency Review'
         continue-on-error: true
         id: dependency_review
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@v5
         with:
           comment-summary-in-pr: always
           fail-on-severity: high
