@@ -106,7 +106,7 @@ The monorepo is organized as a **uv workspace** with four packages occupying dis
 prompts/
 ├── agentic-workflows-v2/   Runtime + UI
 │   ├── agentic_v2/         Python source
-│   ├── tests/              87 test files
+│   ├── tests/              full test suite
 │   └── ui/                 React 19 dashboard
 ├── agentic-v2-eval/        Standalone evaluation framework
 │   └── src/agentic_v2_eval/

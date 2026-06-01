@@ -53,7 +53,7 @@ The time-to-first-span p95 gate reads a rolling window of measurements stored in
 - **Surface:** REST API — `agentic_v2/server/`.
 - **Risk:** Inconsistent with the `GET /runs/{filename}/evaluation` endpoint, which does use a path param.
 - **Workaround:** None needed — the endpoint works. Just surprising.
-- **Status:** Intentional. See [`implementation notes/retro-epic6-eval-depth.md`](implementation notes/retro-epic6-eval-depth.md) for the trade-off analysis.
+- **Status:** Intentional. See `KNOWN_ISSUES.md` (eval package) for the trade-off analysis.
 - **Upstream fix:** Sprint B will revisit with usage data. May move to path-param-with-escaping.
 
 ### 2.2 LangChain adapter requires a separate extras install
@@ -130,7 +130,7 @@ The WebSocket event replay buffer in `agentic_v2/server/websocket.py` is a 500-e
 Epics 1 and 2 have proper pre-implementation plan docs. Epics 3, 5, and 6 shipped without plan docs — the retrospective plans under [`implementation notes/retro-epic*`](implementation notes/) were written after the fact to preserve decision history. They are shorter and less exhaustive than the Epic 1/2 plans.
 
 - **Risk:** Decision rationale may be under-documented compared to prospective plans.
-- **Mitigation:** Three load-bearing decisions from Epic 6 are called out in [`retro-epic6-eval-depth.md`](implementation notes/retro-epic6-eval-depth.md).
+- **Mitigation:** Three load-bearing decisions from Epic 6 are called out in `KNOWN_ISSUES.md` (eval package).
 - **Status:** Accepted; new epics are expected to ship with prospective plans going forward.
 
 ### 5.2 `Generated:` and `Last Updated:` dates in docs may lag
