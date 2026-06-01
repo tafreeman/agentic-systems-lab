@@ -466,7 +466,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for monorepo-wide contribution guidelines
 ## Roadmap & Known Limitations
 
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — epics shipped in April 2026, the Epic 4 numbering gap, and proposed next work.
-- [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) — honest accounting of currently-open issues (mypy findings, SLO empty-window, provider-key dependence).
+- [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) — honest accounting of currently-open issues (SLO empty-window, provider-key dependence, and remaining contract-drift work).
 - [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) — breaking changes since the last coherent release, starting with the `presentation/` system extraction.
 
 ## Security
