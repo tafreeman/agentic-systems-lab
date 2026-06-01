@@ -2,7 +2,7 @@
 
 > **Audience:** Contributors, reviewers, and stakeholders asking "what shipped, what's next, and why is Epic 4 missing?"
 > **Outcome:** After reading, you can answer "is this in scope this quarter?" without asking a human.
-> **Last verified:** 2026-04-22
+> **Last verified:** 2026-06-01
 
 This is the in-repo backlog. Day-to-day sprint tracking lives in issues; this file captures the load-bearing multi-week arcs. If you are about to propose a new initiative, add a stub under **Proposed** and open a PR for review — a roadmap entry without a PR is aspiration.
 
@@ -36,13 +36,12 @@ This is a **tombstone**, not a gap: do not retroactively renumber 5/6 down to 4/
 
 ---
 
-## 2. In flight (Sprint B — targeted 2026-04-29 → 2026-05-10)
+## 2. Remaining stabilization follow-ups
 
-Sprint B is stabilization, not new capability. These items unblock a clean v0.3.1 point release.
+Sprint B was stabilization, not new capability. The eval-package mypy unmasking item is no longer listed here because strict `eval-package-ci.yml` type checking is now live; the remaining follow-ups are the still-open release hygiene work.
 
 | Item | Owner | Target |
 |------|-------|--------|
-| **Unmask 35 mypy findings in `agentic-v2-eval/`** — the eval package currently runs mypy with exemptions; cut that list to zero. | unassigned | Sprint B |
 | **Fix SLO p95 empty-window trivial-pass** — time-to-first-span gate should require ≥ N samples before it declares "pass". See [`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md). | unassigned | Sprint B |
 | **Automate Python ↔ TypeScript wire-format drift detection** — today the `contracts/events.py` union and `ui/src/api/types.ts` are mirrored by hand. Add a generator or diff test. | unassigned | Sprint B |
 | **Dataset sample endpoint API polish** — revisit query-param-for-slash-handling after we see real usage; possibly move to path-param with escaping. | unassigned | Sprint B |

@@ -2,7 +2,7 @@
 
 > **Audience:** Operators, auditors, and contributors reading failing CI or trying to understand why something "works but not quite."
 > **Outcome:** After reading, you know what is intentionally unfinished in v0.3.0 and what Sprint B is expected to address.
-> **Last verified:** 2026-04-22
+> **Last verified:** 2026-06-01
 
 This is an honest accounting. Every item here is real, reproducible, and has shipped into the current release. Nothing here is a guess. If you find a new limitation, add it — do not paper over it elsewhere.
 
@@ -10,19 +10,9 @@ Each item includes a **Status** (reflecting how we're treating it today) and an 
 
 ---
 
-## 1. Typed gates that are not fully enforced
+## 1. Generated contract gates that are not fully enforced
 
-### 1.1 35 mypy findings in `agentic-v2-eval/`
-
-The eval package runs `mypy` with carve-outs because 35 strict-mode findings accumulated during Epic 6 and were not cleared before the release cut. The backend runtime (`agentic-workflows-v2/agentic_v2/`) runs with `mypy --strict` fully enforced.
-
-- **Surface:** CI job `eval-package-ci.yml` runs mypy with a mask.
-- **Risk:** Type-level regressions in `agentic-v2-eval` will not fail CI.
-- **Workaround:** Run `cd agentic-v2-eval && mypy --strict src/agentic_v2_eval/` locally before landing changes there.
-- **Status:** Accepted debt for v0.3.0.
-- **Upstream fix:** Sprint B — see [`ROADMAP.md`](ROADMAP.md) §2.
-
-### 1.2 SLO p95 gate passes trivially on an empty window
+### 1.1 SLO p95 gate passes trivially on an empty window
 
 The time-to-first-span p95 gate reads a rolling window of measurements stored in git (see [ADR-015](adr/ADR-015-slo-in-git-rolling-window.md)). If the window is empty — first run in a new branch, or after a window reset — the p95 computation returns a passing value by default instead of failing closed.
 
@@ -32,7 +22,7 @@ The time-to-first-span p95 gate reads a rolling window of measurements stored in
 - **Status:** Known; intentionally deferred so v0.3.0 can ship.
 - **Upstream fix:** Sprint B — require ≥ N samples before the gate can declare pass.
 
-### 1.3 Python ↔ TypeScript wire format is manually mirrored
+### 1.2 Python ↔ TypeScript wire format is manually mirrored
 
 `agentic_v2/contracts/events.py` defines the execution-event discriminated union in Python; `ui/src/api/types.ts` mirrors it by hand. Drift is caught by reviewer eyeball, not by automation.
 
