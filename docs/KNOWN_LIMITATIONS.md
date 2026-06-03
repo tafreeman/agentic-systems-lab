@@ -81,7 +81,7 @@ The runtime supports `AGENTIC_NO_LLM=1` for deterministic placeholder execution 
 
 Epic 3 hardened the Windows bring-up story. Known residual friction:
 
-- `npx` is unreliable on Windows PATH; always use `npm` for running scripts (see [`CLAUDE.md`](../CLAUDE.md)).
+- `npx` is unreliable on Windows PATH; always use `npm` for running scripts (see [`README.md`](../README.md)).
 - `jq` is not available; JSON parsing in scripts uses `python -c` or `grep`.
 - `pnpm` fails with EPERM on mounted / shared drives; fall back to `npm`.
 - PowerShell run from Git Bash mangles `$_` and `$_.Property` — wrap with `powershell.exe -NoProfile -Command '…'` and single quotes.

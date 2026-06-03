@@ -515,7 +515,7 @@ Full definitions: [docs/GLOSSARY.md](GLOSSARY.md)
 
 Architecture deep dive: [docs/ARCHITECTURE.md](ARCHITECTURE.md)
 
-Project overview and commands: [CLAUDE.md](../CLAUDE.md)
+Project overview and commands: [README.md](../README.md)
 
 ---
 
@@ -525,7 +525,7 @@ Project overview and commands: [CLAUDE.md](../CLAUDE.md)
 
 | Document | What it covers |
 |----------|---------------|
-| [CLAUDE.md](../CLAUDE.md) | Project overview, commands, environment variables, gotchas |
+| [README.md](../README.md) | Project overview, commands, environment variables, gotchas |
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | System architecture and design decisions |
 | [docs/GLOSSARY.md](GLOSSARY.md) | Domain-specific term definitions |
 | [docs/CODING_STANDARDS.md](CODING_STANDARDS.md) | Code style, testing, and review standards |

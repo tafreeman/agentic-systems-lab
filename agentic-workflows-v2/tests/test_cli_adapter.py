@@ -5,6 +5,9 @@ Covers:
 - ``agentic rag ingest`` — ingest files into RAG pipeline.
 - ``agentic rag search`` — search the RAG index.
 - ``agentic list adapters`` — list registered adapters via CLI.
+
+mypy status: this file is excluded from mypy checks via pyproject.toml
+``[tool.mypy] exclude = ["tests/"]``.  No type annotations are required here.
 """
 
 from __future__ import annotations
@@ -216,8 +219,7 @@ class TestRagCLI:
         assert result.exit_code == 0
         assert "query" in result.stdout.lower() or "top" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="_rag_ingest_impl/_rag_search_impl not implemented in main.py; stubs for future CLI refactor")
-    @patch("agentic_v2.cli.main._rag_ingest_impl")
+    @patch("agentic_v2.cli.rag_commands._rag_ingest_impl")
     def test_rag_ingest_reports_chunk_count(self, mock_ingest):
         """RAG ingest reports the number of chunks ingested."""
         mock_ingest.return_value = 5
@@ -235,8 +237,7 @@ class TestRagCLI:
             assert "5" in result.stdout
             assert "chunk" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="_rag_ingest_impl/_rag_search_impl not implemented in main.py; stubs for future CLI refactor")
-    @patch("agentic_v2.cli.main._rag_search_impl")
+    @patch("agentic_v2.cli.rag_commands._rag_search_impl")
     def test_rag_search_returns_results(self, mock_search):
         """RAG search returns and displays results."""
         mock_search.return_value = [
@@ -251,8 +252,7 @@ class TestRagCLI:
         assert result.exit_code == 0
         assert "Kahn" in result.stdout or "result" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="_rag_ingest_impl/_rag_search_impl not implemented in main.py; stubs for future CLI refactor")
-    @patch("agentic_v2.cli.main._rag_search_impl")
+    @patch("agentic_v2.cli.rag_commands._rag_search_impl")
     def test_rag_search_with_top_k(self, mock_search):
         """RAG search respects --top-k parameter."""
         mock_search.return_value = [
@@ -269,8 +269,7 @@ class TestRagCLI:
         call_kwargs = mock_search.call_args
         assert call_kwargs[0][1] == 3  # top_k positional arg
 
-    @pytest.mark.skip(reason="_rag_ingest_impl/_rag_search_impl not implemented in main.py; stubs for future CLI refactor")
-    @patch("agentic_v2.cli.main._rag_search_impl")
+    @patch("agentic_v2.cli.rag_commands._rag_search_impl")
     def test_rag_search_no_results(self, mock_search):
         """RAG search handles empty results gracefully."""
         mock_search.return_value = []
@@ -299,13 +298,20 @@ class TestRagCLI:
 class TestListAdaptersCLI:
     """Tests for ``agentic list adapters`` via CLI."""
 
-    @pytest.mark.skip(reason="adapter default changed from langchain to native; see CHANGELOG")
     def test_list_adapters_returns_both(self):
-        """List adapters shows native and langchain."""
+        """List adapters always shows native; langchain shown when extras installed."""
         result = runner.invoke(app, ["list", "adapters"])
         assert result.exit_code == 0
+        # native adapter is always auto-registered
         assert "native" in result.stdout
-        assert "langchain" in result.stdout
+        # langchain adapter is registered only when the langchain extra is installed;
+        # assert it only when importable so the test passes in minimal environments too
+        try:
+            import langchain  # noqa: F401
+
+            assert "langchain" in result.stdout
+        except ImportError:
+            pass
 
     def test_list_adapters_shows_table(self):
         """List adapters displays a formatted table."""

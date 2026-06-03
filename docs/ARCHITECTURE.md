@@ -85,7 +85,6 @@ Additional supporting documents:
 - [`api-contracts-runtime.md`](api-contracts-runtime.md) — 16 REST endpoints + WebSocket + SSE schemas.
 - [`data-models-runtime.md`](data-models-runtime.md) — 38+ Pydantic v2 models across server, contracts, core.
 - [`component-inventory-ui.md`](component-inventory-ui.md) — 17 UI components across 6 categories.
-- [`source-tree-analysis.md`](source-tree-analysis.md) — full annotated directory tree.
 - [`development-guide.md`](development-guide.md) — dev environments, CLI, tests.
 - [`deployment-guide.md`](deployment-guide.md) — CI/CD, environment variables, production checklist.
 
