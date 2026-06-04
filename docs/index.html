@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>agentic-systems-lab — R&amp;D prototyping companion</title>
 
-  <!-- Fonts: preconnect for parallel downloads, then stylesheet -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=DM+Serif+Display&display=swap" />
@@ -100,9 +99,6 @@
         </div>
         <div class="term">
           <span class="prompt">$ </span><span class="cmd">agentic list workflows</span>
-        </div>
-        <div class="term">
-          <span class="prompt">$ </span><span class="cmd">printf '{"input_text":"hello"}\n' &gt; test-input.json</span>
         </div>
         <div class="term">
           <span class="prompt">$ </span><span class="cmd">agentic run test_deterministic --input test-input.json</span>
@@ -269,7 +265,6 @@ python examples/04_model_routing.py</code></pre>
           CLI workflows
         </div>
         <pre><code><span class="cmd-prompt">$ </span>agentic list workflows
-<span class="cmd-prompt">$ </span>printf '{"input_text":"hello"}\n' &gt; test-input.json
 <span class="cmd-prompt">$ </span>agentic run test_deterministic \
     --input test-input.json</code></pre>
       </div>
