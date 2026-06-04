@@ -87,7 +87,7 @@ Epic 3 hardened the Windows bring-up story. Known residual friction:
 - PowerShell run from Git Bash mangles `$_` and `$_.Property` — wrap with `powershell.exe -NoProfile -Command '…'` and single quotes.
 
 - **Surface:** Developer workflow scripts.
-- **Status:** Documented in `CLAUDE.md`. No single fix — all require awareness.
+- **Status:** These gotchas are Windows-specific developer workflow quirks — no single code fix addresses them. Use `npm` in place of `npx`, substitute `python -c` for `jq`, fall back to `npm` when `pnpm` raises EPERM on mounted drives, and wrap PowerShell invocations from Git Bash with `powershell.exe -NoProfile -Command '…'` using single-quoted arguments. All require contributor awareness rather than a code change.
 
 ---
 
