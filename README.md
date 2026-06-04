@@ -4,6 +4,7 @@
 
 **Development sandbox, runnable examples, and research companion to [agentic-runtime-platform](https://github.com/tafreeman/agentic-runtime-platform).**
 
+[![CI](https://github.com/tafreeman/agentic-systems-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/tafreeman/agentic-systems-lab/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
