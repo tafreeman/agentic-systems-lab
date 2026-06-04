@@ -132,7 +132,7 @@ The `server/` package is the HTTP/WebSocket/SSE boundary of the `agentic-workflo
 - **Purpose:** Pydantic v2 schemas for all REST contracts (request + response). Central source of truth for API types.
 - **Key exports:** `RunRequest`, `RunResponse`, `WorkflowDescriptor`, `EvalRequest`, `JudgeConfig`, ~30 more.
 - **Used by:** all `routes/` modules.
-- **Risks:** Additive-only per CLAUDE.md — never remove fields.
+- **Risks:** Additive-only per public API-contract policy — never remove fields.
 - **Suggested tests:** schema round-trip, optional-field defaults, enum coverage.
 
 ### `multidimensional_scoring.py` — 549 LOC

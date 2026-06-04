@@ -15,6 +15,7 @@
 
 > **Note:** The production runtime lives at [tafreeman/agentic-runtime-platform](https://github.com/tafreeman/agentic-runtime-platform).
 > This repo is where new features are prototyped, security sprints are run, and example code is maintained before promotion upstream.
+> Think of ARP as the release train and this repo as the proving ground: ASL keeps runnable examples, research artifacts, and sprint experiments visible without mixing them into the production runtime's tighter release surface.
 
 ---
 
@@ -68,6 +69,7 @@ Reviewed, tagged releases         Active sprint work
 Clean docs/ARCHITECTURE.md        Planning artifacts, retros
 No generated output               Research library, run outputs
 Pinned deps, CI green             Experimental dependency bumps
+Public product surface            Public lab notebook and examples
 ```
 
 Changes flow one direction: prototype here, upstream when stable.

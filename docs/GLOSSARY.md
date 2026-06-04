@@ -212,7 +212,7 @@ See `agentic_v2/workflows/definitions/`.
 See `agentic_v2/rag/tracing.py`.
 
 **Research Gating** -- Quality thresholds applied to research outputs: `coverage_score >= 0.80` and `source_quality_score >= 0.80`. Research that does not meet these thresholds is flagged for additional iteration or manual review.
-See `CLAUDE.md`.
+See `docs/architecture-tools.md` and `docs/PATTERN_CATALOG.md`.
 
 **Source Tier** -- A classification system for research source quality. **Tier A** (always acceptable): official docs, peer-reviewed papers, arXiv from known groups. **Tier B** (conditional): high-quality engineering blogs, high-vote Stack Overflow answers. **Tier C** (blocked): unverified blogs, marketing materials. Critical architectural claims require at least 2 independent Tier A sources.
-See `CLAUDE.md`.
+See `docs/architecture-tools.md`.

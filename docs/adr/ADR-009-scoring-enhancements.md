@@ -61,7 +61,7 @@ The team converged on four issues:
 
 **Behavioral impact**: Read-only at runtime. `TypeError` raised on attempted mutation. All existing `.get()`, iteration, and `in` checks work identically.
 
-**Rationale**: Aligns with the project's "immutability first" rule (CLAUDE.md §Code Quality Standards). The `_TIEBREAKER_WEIGHTS` in `multidimensional_scoring.py` already used `MappingProxyType` — this makes the pattern consistent.
+**Rationale**: Aligns with the project's public code-quality standard for immutability and deterministic scoring. The `_TIEBREAKER_WEIGHTS` in `multidimensional_scoring.py` already used `MappingProxyType` — this makes the pattern consistent.
 
 ### 4.2 Exponential Recency Decay (Enhancement 2)
 

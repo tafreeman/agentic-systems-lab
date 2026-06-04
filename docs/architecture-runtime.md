@@ -560,7 +560,7 @@ Merged from the 2026-03-03 architecture review. Captures weaknesses and recommen
 
 ### Code-Quality Configuration Drift
 
-- `agentic-workflows-v2/pyproject.toml` has **no `[tool.ruff]` section**. Pre-commit runs `ruff --fix` with no `--select`, falling back to defaults (E + F only). CLAUDE.md prescribes 13 rule categories (E, F, W, I, N, UP, S, B, A, C4, SIM, TCH, RUF). Only `agentic-v2-eval` has an explicit ruff config. Documented standards are aspirational rather than tool-enforced for the main package.
+- `agentic-workflows-v2/pyproject.toml` now carries an explicit `[tool.ruff.lint]` rule set for E, F, W, I, N, UP, S, B, A, C4, SIM, TCH, and RUF. Some ignores remain as a documented Sprint C ratchet, but the public configuration now matches the repo standard instead of relying on private assistant config.
 
 ### Production Readiness Gaps
 
