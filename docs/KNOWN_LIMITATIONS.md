@@ -22,15 +22,15 @@ The time-to-first-span p95 gate reads a rolling window of measurements stored in
 - **Status:** Known; intentionally deferred so v0.3.0 can ship.
 - **Upstream fix:** Sprint B — require ≥ N samples before the gate can declare pass.
 
-### 1.2 Python ↔ TypeScript wire format is manually mirrored
+### 1.2 Python ↔ TypeScript wire format drift detection — RESOLVED
 
-`agentic_v2/contracts/events.py` defines the execution-event discriminated union in Python; `ui/src/api/types.ts` mirrors it by hand. Drift is caught by reviewer eyeball, not by automation.
+`agentic_v2/contracts/events.py` defines the execution-event discriminated union in Python; `ui/src/api/types.ts` mirrors it. Drift is now caught automatically by the `wire-format-drift` CI job (Sprint B fix shipped), which regenerates JSON schema and TypeScript types on every push and fails the build if the committed types are stale.
 
 - **Surface:** Any new event field requires an edit in both files.
-- **Risk:** Silent shape mismatches between backend emit and frontend decode. Recent example avoided by review only.
-- **Workaround:** When editing `contracts/events.py`, grep `ui/src/api/types.ts` for the event name and update in the same PR.
-- **Status:** Ratified as manual in [ADR-014](adr/ADR-014-pydantic-wire-format.md); drift detection is documented-only.
-- **Upstream fix:** Sprint B — add a generator or diff test.
+- **Risk:** Silent shape mismatches between backend emit and frontend decode. Mitigated by automated CI check.
+- **Workaround:** Run `python scripts/generate_ts_types.py` and `npm --prefix ui run generate:types` from `agentic-workflows-v2/` when editing `contracts/events.py`, then commit the result.
+- **Status:** Resolved — automated drift detection via `wire-format-drift` CI job. See [ADR-014](adr/ADR-014-pydantic-wire-format.md).
+- **Upstream fix:** Shipped in Sprint B.
 
 ---
 
