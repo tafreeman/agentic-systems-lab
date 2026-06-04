@@ -110,8 +110,8 @@ a:hover { color: var(--accent-hover); }
     linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
   background-size: 32px 32px;
   background-position: -1px -1px;
-  mask-image: radial-gradient(ellipse 80% 70% at 60% 0%, black 0%, transparent 70%);
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 0%, black 0%, transparent 70%);
+  mask-image: radial-gradient(ellipse 80% 70% at 60% 0%, black 0%, transparent 70%);
   opacity: 0.55;
   pointer-events: none;
 }
