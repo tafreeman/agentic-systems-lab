@@ -299,19 +299,21 @@ class TestListAdaptersCLI:
     """Tests for ``agentic list adapters`` via CLI."""
 
     def test_list_adapters_returns_both(self):
-        """List adapters always shows native; langchain shown when extras installed."""
+        """List adapters always shows native; langchain shown only when registered."""
+        from agentic_v2.adapters import get_registry
+
         result = runner.invoke(app, ["list", "adapters"])
         assert result.exit_code == 0
         # native adapter is always auto-registered
         assert "native" in result.stdout
-        # langchain adapter is registered only when the langchain extra is installed;
-        # assert it only when importable so the test passes in minimal environments too
-        try:
-            import langchain
-
+        # langchain adapter is shown only when it is actually registered;
+        # guard on registry state rather than import availability so the test
+        # reflects the real CLI output after the langchain deprecation migration
+        registered = get_registry().list_adapters()
+        if "langchain" in registered:
             assert "langchain" in result.stdout
-        except ImportError:
-            pass
+        else:
+            assert "langchain" not in result.stdout
 
     def test_list_adapters_shows_table(self):
         """List adapters displays a formatted table."""
