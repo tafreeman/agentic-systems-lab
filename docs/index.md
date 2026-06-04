@@ -49,7 +49,6 @@
 - [Onboarding Guide](./ONBOARDING.md) — Canonical 5-minute to 1-hour first-run path
 - [Contribution Policy](../CONTRIBUTING.md) — Monorepo-wide contribution guide (at repo root)
 - [Project Overview](./project-overview.md) — Purpose, tech stack summary, architecture type, links to all docs
-- [Source Tree Analysis](./source-tree-analysis.md) — Full annotated directory tree with entry points and integration points
 - [Integration Architecture](./integration-architecture.md) — How the 4 parts communicate (REST, WebSocket, SSE, imports)
 - [Development Guide](./development-guide.md) — Prerequisites, installation, dev servers, testing, CLI, common issues
 - [Deployment Guide](./deployment-guide.md) — CI/CD pipeline, security scanning, environment variables, production checklist
@@ -116,7 +115,7 @@ Exhaustive full-file analysis of specific areas:
 1. Read the [Project Overview](./project-overview.md) to understand the system
 2. Follow the [Development Guide](./development-guide.md) to set up your environment
 3. Review the root [`CONTRIBUTING.md`](../CONTRIBUTING.md) for code standards and workflow
-4. Explore the [Source Tree Analysis](./source-tree-analysis.md) to understand the codebase layout
+4. Explore the [Project Overview](./project-overview.md) to understand the codebase layout
 
 ### For Feature Work
 

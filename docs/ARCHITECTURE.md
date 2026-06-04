@@ -85,7 +85,6 @@ Additional supporting documents:
 - [`api-contracts-runtime.md`](api-contracts-runtime.md) — 16 REST endpoints + WebSocket + SSE schemas.
 - [`data-models-runtime.md`](data-models-runtime.md) — 38+ Pydantic v2 models across server, contracts, core.
 - [`component-inventory-ui.md`](component-inventory-ui.md) — 17 UI components across 6 categories.
-- [`source-tree-analysis.md`](source-tree-analysis.md) — full annotated directory tree.
 - [`development-guide.md`](development-guide.md) — dev environments, CLI, tests.
 - [`deployment-guide.md`](deployment-guide.md) — CI/CD, environment variables, production checklist.
 
@@ -105,7 +104,7 @@ These are the places where a change ripples across the system. Understand these 
 
 ### 3.2 Typed execution-event wire format
 
-`contracts/events.py` defines a Pydantic discriminated union covering `workflow_start`, `step_start`, `step_end`, `step_complete`, `step_error`, `workflow_end`, `evaluation_start`, `evaluation_complete`. WebSocket and SSE broadcasts validate before emit. TypeScript interfaces in `ui/src/api/types.ts` mirror this union by hand — drift is detected by convention, not yet by automation.
+`contracts/events.py` defines a Pydantic discriminated union covering `workflow_start`, `step_start`, `step_end`, `step_complete`, `step_error`, `workflow_end`, `evaluation_start`, `evaluation_complete`. WebSocket and SSE broadcasts validate before emit. TypeScript interfaces in `ui/src/api/types.ts` mirror this union — drift is detected automatically by the `wire-format-drift` CI job, which regenerates JSON schema and TypeScript types and diffs them on every push.
 
 - **Ratifies:** [ADR-014](adr/ADR-014-pydantic-wire-format.md).
 - **Related:** the 500-event replay buffer in `server/websocket.py` — clients reconnecting mid-run receive missed events.

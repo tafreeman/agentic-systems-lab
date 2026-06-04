@@ -104,6 +104,8 @@ If you only touched one package, you can narrow the run:
 
 Full CI job catalogue: [`.github/workflows/`](.github/workflows/).
 
+> **mypy enforcement scope:** The badge says "type checked: mypy" but enforcement is not yet strict — `disallow_untyped_defs = false` and several modules (tools/builtin, integrations/mcp, integrations/tracing, langchain.*) carry `ignore_errors = true` overrides while pre-existing type debt is being paid down. The ratchet plan is captured in `agentic-workflows-v2/pyproject.toml` under `[tool.mypy]` TODO comments; each Sprint C task removes one override block as that module's types are cleaned up.
+
 ---
 
 ## 5. Commit format

@@ -2,7 +2,7 @@
 
 > **Audience:** Operators, auditors, and contributors reading failing CI or trying to understand why something "works but not quite."
 > **Outcome:** After reading, you know what is intentionally unfinished in v0.3.0 and what Sprint B is expected to address.
-> **Last verified:** 2026-04-22
+> **Last verified:** 2026-06-01
 
 This is an honest accounting. Every item here is real, reproducible, and has shipped into the current release. Nothing here is a guess. If you find a new limitation, add it — do not paper over it elsewhere.
 
@@ -10,19 +10,9 @@ Each item includes a **Status** (reflecting how we're treating it today) and an 
 
 ---
 
-## 1. Typed gates that are not fully enforced
+## 1. Generated contract gates that are not fully enforced
 
-### 1.1 35 mypy findings in `agentic-v2-eval/`
-
-The eval package runs `mypy` with carve-outs because 35 strict-mode findings accumulated during Epic 6 and were not cleared before the release cut. The backend runtime (`agentic-workflows-v2/agentic_v2/`) runs with `mypy --strict` fully enforced.
-
-- **Surface:** CI job `eval-package-ci.yml` runs mypy with a mask.
-- **Risk:** Type-level regressions in `agentic-v2-eval` will not fail CI.
-- **Workaround:** Run `cd agentic-v2-eval && mypy --strict src/agentic_v2_eval/` locally before landing changes there.
-- **Status:** Accepted debt for v0.3.0.
-- **Upstream fix:** Sprint B — see [`ROADMAP.md`](ROADMAP.md) §2.
-
-### 1.2 SLO p95 gate passes trivially on an empty window
+### 1.1 SLO p95 gate passes trivially on an empty window
 
 The time-to-first-span p95 gate reads a rolling window of measurements stored in git (see [ADR-015](adr/ADR-015-slo-in-git-rolling-window.md)). If the window is empty — first run in a new branch, or after a window reset — the p95 computation returns a passing value by default instead of failing closed.
 
@@ -32,15 +22,15 @@ The time-to-first-span p95 gate reads a rolling window of measurements stored in
 - **Status:** Known; intentionally deferred so v0.3.0 can ship.
 - **Upstream fix:** Sprint B — require ≥ N samples before the gate can declare pass.
 
-### 1.3 Python ↔ TypeScript wire format is manually mirrored
+### 1.2 Python ↔ TypeScript wire format drift detection — RESOLVED
 
-`agentic_v2/contracts/events.py` defines the execution-event discriminated union in Python; `ui/src/api/types.ts` mirrors it by hand. Drift is caught by reviewer eyeball, not by automation.
+`agentic_v2/contracts/events.py` defines the execution-event discriminated union in Python; `ui/src/api/types.ts` mirrors it. Drift is now caught automatically by the `wire-format-drift` CI job (Sprint B fix shipped), which regenerates JSON schema and TypeScript types on every push and fails the build if the committed types are stale.
 
 - **Surface:** Any new event field requires an edit in both files.
-- **Risk:** Silent shape mismatches between backend emit and frontend decode. Recent example avoided by review only.
-- **Workaround:** When editing `contracts/events.py`, grep `ui/src/api/types.ts` for the event name and update in the same PR.
-- **Status:** Ratified as manual in [ADR-014](adr/ADR-014-pydantic-wire-format.md); drift detection is documented-only.
-- **Upstream fix:** Sprint B — add a generator or diff test.
+- **Risk:** Silent shape mismatches between backend emit and frontend decode. Mitigated by automated CI check.
+- **Workaround:** Run `python scripts/generate_ts_types.py` and `npm --prefix ui run generate:types` from `agentic-workflows-v2/` when editing `contracts/events.py`, then commit the result.
+- **Status:** Resolved — automated drift detection via `wire-format-drift` CI job. See [ADR-014](adr/ADR-014-pydantic-wire-format.md).
+- **Upstream fix:** Shipped in Sprint B.
 
 ---
 
@@ -53,7 +43,7 @@ The time-to-first-span p95 gate reads a rolling window of measurements stored in
 - **Surface:** REST API — `agentic_v2/server/`.
 - **Risk:** Inconsistent with the `GET /runs/{filename}/evaluation` endpoint, which does use a path param.
 - **Workaround:** None needed — the endpoint works. Just surprising.
-- **Status:** Intentional. See [`implementation notes/retro-epic6-eval-depth.md`](implementation notes/retro-epic6-eval-depth.md) for the trade-off analysis.
+- **Status:** Intentional. See `KNOWN_ISSUES.md` (eval package) for the trade-off analysis.
 - **Upstream fix:** Sprint B will revisit with usage data. May move to path-param-with-escaping.
 
 ### 2.2 LangChain adapter requires a separate extras install
@@ -91,13 +81,13 @@ The runtime supports `AGENTIC_NO_LLM=1` for deterministic placeholder execution 
 
 Epic 3 hardened the Windows bring-up story. Known residual friction:
 
-- `npx` is unreliable on Windows PATH; always use `npm` for running scripts (see [`CLAUDE.md`](../CLAUDE.md)).
+- `npx` is unreliable on Windows PATH; always use `npm` for running scripts (see [`README.md`](../README.md)).
 - `jq` is not available; JSON parsing in scripts uses `python -c` or `grep`.
 - `pnpm` fails with EPERM on mounted / shared drives; fall back to `npm`.
 - PowerShell run from Git Bash mangles `$_` and `$_.Property` — wrap with `powershell.exe -NoProfile -Command '…'` and single quotes.
 
 - **Surface:** Developer workflow scripts.
-- **Status:** Documented in `CLAUDE.md`. No single fix — all require awareness.
+- **Status:** These gotchas are Windows-specific developer workflow quirks — no single code fix addresses them. Use `npm` in place of `npx`, substitute `python -c` for `jq`, fall back to `npm` when `pnpm` raises EPERM on mounted drives, and wrap PowerShell invocations from Git Bash with `powershell.exe -NoProfile -Command '…'` using single-quoted arguments. All require contributor awareness rather than a code change.
 
 ---
 
@@ -130,7 +120,7 @@ The WebSocket event replay buffer in `agentic_v2/server/websocket.py` is a 500-e
 Epics 1 and 2 have proper pre-implementation plan docs. Epics 3, 5, and 6 shipped without plan docs — the retrospective plans under [`implementation notes/retro-epic*`](implementation notes/) were written after the fact to preserve decision history. They are shorter and less exhaustive than the Epic 1/2 plans.
 
 - **Risk:** Decision rationale may be under-documented compared to prospective plans.
-- **Mitigation:** Three load-bearing decisions from Epic 6 are called out in [`retro-epic6-eval-depth.md`](implementation notes/retro-epic6-eval-depth.md).
+- **Mitigation:** Three load-bearing decisions from Epic 6 are called out in `KNOWN_ISSUES.md` (eval package).
 - **Status:** Accepted; new epics are expected to ship with prospective plans going forward.
 
 ### 5.2 `Generated:` and `Last Updated:` dates in docs may lag

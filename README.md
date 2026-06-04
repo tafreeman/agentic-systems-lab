@@ -4,6 +4,7 @@
 
 **Development sandbox, runnable examples, and research companion to [agentic-runtime-platform](https://github.com/tafreeman/agentic-runtime-platform).**
 
+[![CI](https://github.com/tafreeman/agentic-systems-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/tafreeman/agentic-systems-lab/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -466,7 +467,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for monorepo-wide contribution guidelines
 ## Roadmap & Known Limitations
 
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — epics shipped in April 2026, the Epic 4 numbering gap, and proposed next work.
-- [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) — honest accounting of currently-open issues (mypy findings, SLO empty-window, provider-key dependence).
+- [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) — honest accounting of currently-open issues (SLO empty-window, provider-key dependence, and remaining contract-drift work).
 - [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) — breaking changes since the last coherent release, starting with the `presentation/` system extraction.
 
 ## Security

@@ -106,7 +106,7 @@ The monorepo is organized as a **uv workspace** with four packages occupying dis
 prompts/
 ├── agentic-workflows-v2/   Runtime + UI
 │   ├── agentic_v2/         Python source
-│   ├── tests/              87 test files
+│   ├── tests/              full test suite
 │   └── ui/                 React 19 dashboard
 ├── agentic-v2-eval/        Standalone evaluation framework
 │   └── src/agentic_v2_eval/
@@ -128,7 +128,7 @@ prompts/
 
 | Document | Description |
 |---|---|
-| [Source Tree Analysis](source-tree-analysis.md) | Annotated directory tree with purpose annotations for every critical directory |
+| [Project Overview](project-overview.md) | Purpose, tech stack summary, architecture type, links to all docs |
 | [Integration Architecture](integration-architecture.md) | Cross-package communication contracts, REST API endpoints, WebSocket protocol, data flow |
 | [Development Guide](development-guide.md) | Local development setup, dev servers, testing, linting, CLI usage, common issues |
 | [Deployment Guide](deployment-guide.md) | CI/CD pipeline, environment variable reference, Docker, production configuration |
