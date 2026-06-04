@@ -307,7 +307,7 @@ class TestListAdaptersCLI:
         # langchain adapter is registered only when the langchain extra is installed;
         # assert it only when importable so the test passes in minimal environments too
         try:
-            import langchain  # noqa: F401
+            import langchain
 
             assert "langchain" in result.stdout
         except ImportError:
