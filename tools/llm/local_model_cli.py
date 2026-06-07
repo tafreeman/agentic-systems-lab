@@ -108,8 +108,8 @@ def main() -> None:
 
             logger.info(json.dumps({"results": results}, indent=2))
             sys.exit(0)
-        except Exception as e:
-            logger.error(f"Error during batch evaluation: {e}")
+        except Exception:
+            logger.exception("Error during batch evaluation")
             sys.exit(1)
 
     # Interactive mode
@@ -125,8 +125,8 @@ def main() -> None:
             temperature=args.temperature,
         )
         logger.info(response)
-    except Exception as e:
-        logger.error(f"Error: {e}")
+    except Exception:
+        logger.exception("Error")
         sys.exit(1)
 
 
