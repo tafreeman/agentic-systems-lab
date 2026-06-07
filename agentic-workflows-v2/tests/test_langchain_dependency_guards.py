@@ -28,7 +28,7 @@ def test_wraps_missing_dependency_with_install_hint() -> None:
     error = ModuleNotFoundError("No module named 'langchain_core'")
     error.name = "langchain_core"
 
-    wrapped = to_missing_langchain_dependency_error(error)
+    wrapped = to_missing_langchain_dependency_error()
 
     assert isinstance(wrapped, MissingLangChainDependencyError)
     assert "Install with: pip install -e '.[langchain]'" in str(wrapped)

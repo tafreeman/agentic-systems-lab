@@ -88,8 +88,8 @@ class McpOutputStorage:
                 f.write(content)
 
             logger.info(f"Saved text output to {file_path} ({len(content)} chars)")
-        except Exception as e:
-            logger.error(f"Failed to save text output: {e}")
+        except Exception:
+            logger.exception("Failed to save text output")
             raise
 
         # Get workspace-relative path (always starts with "./" for portability)
@@ -136,8 +136,8 @@ class McpOutputStorage:
                 f.write(data)
 
             logger.info(f"Saved binary output to {file_path} ({len(data)} bytes)")
-        except Exception as e:
-            logger.error(f"Failed to save binary output: {e}")
+        except Exception:
+            logger.exception("Failed to save binary output")
             raise
 
         # Get workspace-relative path (always starts with "./" for portability)
@@ -170,8 +170,8 @@ class McpOutputStorage:
             return self.save_binary_output(
                 binary_data, server_name, tool_name, mime_type
             )
-        except Exception as e:
-            logger.error(f"Failed to decode/save base64 data: {e}")
+        except Exception:
+            logger.exception("Failed to decode/save base64 data")
             raise
 
     def generate_file_pointer_message(

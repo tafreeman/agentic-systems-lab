@@ -337,7 +337,7 @@ class ArchitectAgent(BaseAgent[ArchitectureInput, ArchitectureOutput]):
         """
         try:
             return extract_json(response)
-        except (json.JSONDecodeError, ValueError) as e:
+        except ValueError as e:
             # Return structured fallback
             return {
                 "raw_response": response,

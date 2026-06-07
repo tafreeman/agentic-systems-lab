@@ -474,7 +474,7 @@ class TestMonotonicClockIntegration:
 
     def test_record_failure_sets_mono(self) -> None:
         stats = ModelStats(model_id="test:model")
-        stats.record_failure("test")
+        stats.record_failure()
         assert stats._last_failure_mono is not None
         assert abs(stats._last_failure_mono - time.monotonic()) < 1.0
 
@@ -483,7 +483,7 @@ class TestMonotonicClockIntegration:
         stats._recovery_timeout_seconds = 1
         # Open the circuit
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
         assert stats.circuit_state == CircuitState.OPEN
         assert stats.check_circuit() is False
 
@@ -653,7 +653,7 @@ class TestModelSelectionDegradedMode:
         # Exhaust TIER_3
         stats = router._get_stats("anthropic:claude-3-sonnet")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         model = router.get_model_for_tier(ModelTier.TIER_3)
         assert model is not None
@@ -669,7 +669,7 @@ class TestModelSelectionDegradedMode:
         router.register_chain(ModelTier.TIER_1, FallbackChain(("m:a",), "t"))
         stats = router._get_stats("m:a")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         model = router.get_model_for_tier(ModelTier.TIER_1, allow_cross_tier=False)
         assert model is None

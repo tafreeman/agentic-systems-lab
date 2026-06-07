@@ -58,7 +58,7 @@ class TestCrossTierDegradation:
         # Exhaust TIER_3
         stats = router._get_stats("anthropic:claude-3-sonnet")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
         assert stats.circuit_state == CircuitState.OPEN
 
         model = router.get_model_for_tier(ModelTier.TIER_3, allow_cross_tier=False)
@@ -70,7 +70,7 @@ class TestCrossTierDegradation:
         # Exhaust TIER_3
         stats = router._get_stats("anthropic:claude-3-sonnet")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         model = router.get_model_for_tier(ModelTier.TIER_3)
         # Should get a TIER_2 model (lower = preferred degradation direction)
@@ -83,7 +83,7 @@ class TestCrossTierDegradation:
         for m in ("openai:gpt-4o-mini", "openai:gpt-4o", "gh:gpt-4o-mini"):
             stats = router._get_stats(m)
             for _ in range(5):
-                stats.record_failure("test")
+                stats.record_failure()
 
         # TIER_2 exhausted → should escalate to TIER_3 or TIER_4
         model = router.get_model_for_tier(ModelTier.TIER_2)
@@ -101,7 +101,7 @@ class TestCrossTierDegradation:
         for m in ("m1:a", "m2:a", "m3:a", "m4:a", "m5:a"):
             stats = router._get_stats(m)
             for _ in range(5):
-                stats.record_failure("test")
+                stats.record_failure()
 
         model = router.get_model_for_tier(ModelTier.TIER_2)
         assert model is None
@@ -116,7 +116,7 @@ class TestCrossTierDegradation:
         # Exhaust TIER_1
         stats = router._get_stats("openai:gpt-4o-mini")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         model = router.get_model_for_tier(ModelTier.TIER_1)
         # Should degrade to TIER_2, NOT TIER_0
@@ -135,7 +135,7 @@ class TestCrossTierDegradation:
         # Exhaust TIER_2
         stats = router._get_stats("mid:a")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         # With cost limit, should skip expensive TIER_3 model and use TIER_1
         model = router.get_model_for_tier(ModelTier.TIER_2, max_cost=5.0)
@@ -151,7 +151,7 @@ class TestCrossTierDegradation:
         # Exhaust TIER_3
         stats = router._get_stats("anthropic:claude-3-sonnet")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         model = router.get_model_for_tier(ModelTier.TIER_3)
         # TIER_2 (distance=1, down) is preferred over TIER_4 (distance=1, up)
@@ -165,7 +165,7 @@ class TestCrossTierDegradation:
         # Exhaust TIER_3
         stats = router._get_stats("anthropic:claude-3-sonnet")
         for _ in range(5):
-            stats.record_failure("test")
+            stats.record_failure()
 
         caller = AsyncMock(return_value="cross-tier response")
         model, response = await router.call_with_fallback(

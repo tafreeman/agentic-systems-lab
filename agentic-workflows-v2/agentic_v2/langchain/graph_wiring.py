@@ -245,7 +245,7 @@ def parse_json_dict_from_text(text: str) -> dict[str, Any] | None:
         pass
 
     fenced = re.findall(
-        r"```(?:json)?\s*(\{.*?\})\s*```", raw, flags=re.DOTALL | re.IGNORECASE
+        r"```(?:json)?\s*(\{[^}]*\})\s*```", raw, flags=re.DOTALL | re.IGNORECASE
     )
     for candidate in fenced:
         try:

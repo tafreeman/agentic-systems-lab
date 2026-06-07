@@ -35,7 +35,6 @@ except ImportError as exc:  # pragma: no cover
         raise
     _HAS_LANGCHAIN = False
     _LANGCHAIN_IMPORT_ERROR = to_missing_langchain_dependency_error(
-        exc,
         install_hint="pip install langchain langgraph",
     )
     _WorkflowRunner = None  # type: ignore[assignment,misc]

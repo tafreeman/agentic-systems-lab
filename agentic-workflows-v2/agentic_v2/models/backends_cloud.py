@@ -21,6 +21,8 @@ import httpx
 from .backends_base import LLMBackend
 from .secrets import get_first_secret, get_secret
 
+CONTENT_TYPE_JSON = "application/json"
+
 # ---------------------------------------------------------------------------
 # GitHub Models
 # ---------------------------------------------------------------------------
@@ -56,7 +58,7 @@ class GitHubModelsBackend(LLMBackend):
                 timeout=self.timeout,
                 headers={
                     "Authorization": f"Bearer {self.token}",
-                    "Content-Type": "application/json",
+                    "Content-Type": CONTENT_TYPE_JSON,
                 },
             )
         return self._client
@@ -153,7 +155,7 @@ class OpenAIBackend(LLMBackend):
                 timeout=self.timeout,
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
+                    "Content-Type": CONTENT_TYPE_JSON,
                 },
             )
         return self._client
@@ -246,7 +248,7 @@ class AnthropicBackend(LLMBackend):
                 headers={
                     "x-api-key": self.api_key,
                     "anthropic-version": self.api_version,
-                    "Content-Type": "application/json",
+                    "Content-Type": CONTENT_TYPE_JSON,
                 },
             )
         return self._client

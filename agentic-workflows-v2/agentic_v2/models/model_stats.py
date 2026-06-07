@@ -215,12 +215,8 @@ class ModelStats:
                 self.circuit_state = CircuitState.CLOSED
                 self._half_open_successes = 0
 
-    def record_failure(self, error_type: str = "unknown") -> None:
-        """Record a failed call.
-
-        Args:
-            error_type: Type of error encountered
-        """
+    def record_failure(self) -> None:
+        """Record a failed call."""
         now_utc = datetime.now(timezone.utc)
         self.failure_count += 1
         self.last_failure = now_utc
@@ -249,7 +245,7 @@ class ModelStats:
                 header. If None, falls back to default 120s cooldown.
         """
         self.rate_limit_count += 1
-        self.record_failure("rate_limit")
+        self.record_failure()
         # ADR-002C/E: Use provider Retry-After when available, monotonic clock
         cooldown_secs = retry_after_seconds if retry_after_seconds is not None else 120
         self.set_cooldown(cooldown_secs)
@@ -257,7 +253,7 @@ class ModelStats:
     def record_timeout(self) -> None:
         """Record a timeout."""
         self.timeout_count += 1
-        self.record_failure("timeout")
+        self.record_failure()
 
     def set_cooldown(self, seconds: int) -> None:
         """Set cooldown period.

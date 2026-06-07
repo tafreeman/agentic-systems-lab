@@ -284,7 +284,7 @@ class McpConnectionManager:
                 last_error = e
                 metadata.last_error = f"Unexpected error: {e}"
                 metadata.state = McpConnectionState.FAILED
-                logger.error(f"Unexpected error connecting to {name}: {e}")
+                logger.exception("Unexpected error connecting to %s", name)
                 break
 
         # All retries exhausted

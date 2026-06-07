@@ -83,8 +83,8 @@ class VerificationGate:
         for cmd in commands:
             try:
                 status = await self._run_single(cmd, timeout_seconds=timeout_seconds)
-            except OSError as exc:
-                logger.error("Subprocess creation failed for %r: %s", cmd, exc)
+            except OSError:
+                logger.exception("Subprocess creation failed for %r", cmd)
                 return VerificationStatus.ERROR, (cmd,)
 
             if status != 0:

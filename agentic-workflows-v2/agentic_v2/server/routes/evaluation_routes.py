@@ -48,7 +48,7 @@ run_logger = RunLogger()
 
 
 def _make_sample_summary(
-    sample: dict[str, Any], sample_index: int, meta: dict[str, Any]
+    sample: dict[str, Any], sample_index: int
 ) -> DatasetSampleSummary:
     """Build a compact summary from a raw dataset sample."""
     field_names = list(sample.keys())
@@ -92,7 +92,14 @@ def _require_langchain() -> None:
         )
 
 
-@router.get("/eval/datasets", response_model=ListEvaluationDatasetsResponse)
+@router.get(
+    "/eval/datasets",
+    response_model=ListEvaluationDatasetsResponse,
+    responses={
+        404: {"description": "Workflow not found"},
+        501: {"description": "LangChain extras not installed"},
+    },
+)
 async def list_evaluation_datasets(workflow: str | None = None):
     """List repository and local dataset options for workflow evaluation."""
     if workflow:
@@ -139,7 +146,14 @@ async def list_evaluation_datasets(workflow: str | None = None):
     )
 
 
-@router.get("/workflows/{workflow_name}/preview-dataset-inputs")
+@router.get(
+    "/workflows/{workflow_name}/preview-dataset-inputs",
+    responses={
+        404: {"description": "Workflow not found"},
+        422: {"description": "Invalid dataset_source or validation error"},
+        501: {"description": "LangChain extras not installed"},
+    },
+)
 async def preview_dataset_inputs(
     workflow_name: str,
     dataset_source: str,
@@ -198,7 +212,14 @@ async def preview_dataset_inputs(
     }
 
 
-@router.get("/eval/datasets/sample-list", response_model=DatasetSampleListResponse)
+@router.get(
+    "/eval/datasets/sample-list",
+    response_model=DatasetSampleListResponse,
+    responses={
+        422: {"description": "Invalid dataset_source, limit, or offset"},
+        500: {"description": "Failed to load dataset"},
+    },
+)
 async def list_dataset_samples(
     dataset_source: str,
     dataset_id: str,
@@ -241,7 +262,7 @@ async def list_dataset_samples(
             sample_count = len(batch)
 
     summaries: list[DatasetSampleSummary] = [
-        _make_sample_summary(sample, s_meta["sample_index"], s_meta)
+        _make_sample_summary(sample, s_meta["sample_index"])
         for sample, s_meta in batch
     ]
 

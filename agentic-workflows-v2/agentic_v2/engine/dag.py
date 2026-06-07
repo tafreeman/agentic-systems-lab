@@ -162,7 +162,7 @@ class DAG:
             CycleDetectedError: With the cycle path from the repeated node
                 back to itself (e.g. ``["A", "B", "C", "A"]``).
         """
-        color: dict[str, str] = {name: "white" for name in self.steps}
+        color: dict[str, str] = dict.fromkeys(self.steps, "white")
         stack: list[str] = []
 
         def visit(node: str) -> None:

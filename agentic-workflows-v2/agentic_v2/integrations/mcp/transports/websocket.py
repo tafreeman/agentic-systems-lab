@@ -123,14 +123,15 @@ class WebSocketTransport(McpTransport):
             except Exception as e:
                 logger.warning(f"Error closing WebSocket: {e}")
 
-        if self._receive_task and not self._receive_task.done():
-            self._receive_task.cancel()
-            try:
-                await self._receive_task
-            except asyncio.CancelledError:
-                pass
-
-        self._emit_close()
+        try:
+            if self._receive_task and not self._receive_task.done():
+                self._receive_task.cancel()
+                try:
+                    await self._receive_task
+                except asyncio.CancelledError:
+                    raise
+        finally:
+            self._emit_close()
 
     async def _receive_loop(self) -> None:
         """Receive and parse JSON-RPC messages from WebSocket.
@@ -162,10 +163,11 @@ class WebSocketTransport(McpTransport):
 
         except asyncio.CancelledError:
             logger.debug("WebSocket receive loop cancelled")
+            raise
         except websockets.exceptions.ConnectionClosed as e:
             logger.info(f"WebSocket connection closed: {e}")
         except Exception as e:
-            logger.error(f"WebSocket receive error: {e}")
+            logger.exception("WebSocket receive error")
             self._emit_error(e)
         finally:
             # Connection closed

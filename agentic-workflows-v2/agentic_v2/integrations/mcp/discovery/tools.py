@@ -85,8 +85,8 @@ class ToolDiscovery:
 
             return tools
 
-        except Exception as e:
-            logger.error(f"Failed to fetch tools from {server_name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to fetch tools from {server_name}")
             raise
 
     def invalidate_cache(self, server_name: str) -> None:

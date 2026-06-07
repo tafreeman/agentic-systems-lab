@@ -87,7 +87,7 @@ class ResourceDiscovery:
             return resources
 
         except Exception as e:
-            logger.error(f"Failed to fetch resources from {server_name}: {e}")
+            logger.exception(f"Failed to fetch resources from {server_name}: {e}")
             raise
 
     async def read_resource(
@@ -123,7 +123,7 @@ class ResourceDiscovery:
             return response
 
         except Exception as e:
-            logger.error(f"Failed to read resource {uri} from {server_name}: {e}")
+            logger.exception(f"Failed to read resource {uri} from {server_name}: {e}")
             raise
 
     def invalidate_cache(self, server_name: str) -> None:

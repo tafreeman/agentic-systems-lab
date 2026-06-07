@@ -45,7 +45,7 @@ except ImportError as exc:
     if not is_missing_langchain_dependency_error(exc):
         raise
     _LANGCHAIN_AVAILABLE = False
-    _LANGCHAIN_IMPORT_ERROR = to_missing_langchain_dependency_error(exc)
+    _LANGCHAIN_IMPORT_ERROR = to_missing_langchain_dependency_error()
 
 from ..integrations.otel import create_trace_adapter
 from ..workflows.run_logger import RunLogger

@@ -213,7 +213,7 @@ if LANGCHAIN_AVAILABLE:
             self._agent = agent
 
         async def ainvoke(
-            self, input_data: dict[str, Any], config: Any | None = None
+            self, input_data: dict[str, Any]
         ) -> dict[str, Any]:
             """Run the V2 agent and return output as dict."""
             # Build typed input from the agent's input class
@@ -230,7 +230,7 @@ if LANGCHAIN_AVAILABLE:
             """Sync wrapper."""
             loop = asyncio.new_event_loop()
             try:
-                return loop.run_until_complete(self.ainvoke(input_data, config))
+                return loop.run_until_complete(self.ainvoke(input_data))
             finally:
                 loop.close()
 

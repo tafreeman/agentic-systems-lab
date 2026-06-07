@@ -105,7 +105,7 @@ async def runs_summary(workflow: str | None = None):
     return run_logger.summary(workflow_name=workflow)
 
 
-@router.get("/runs/{filename}")
+@router.get("/runs/{filename}", responses={404: {"description": "Run not found"}})
 async def get_run(filename: str):
     """Get full run detail including all step data."""
     base_dir = run_logger.runs_dir
@@ -169,7 +169,7 @@ async def get_run(filename: str):
     return run_data
 
 
-@router.get("/runs/{filename}/evaluation", response_model=RunEvaluationDetailResponse)
+@router.get("/runs/{filename}/evaluation", response_model=RunEvaluationDetailResponse, responses={404: {"description": "Run not found"}})
 async def get_run_evaluation(filename: str):
     """Get full rubric evaluation detail for a scored workflow run."""
     base_dir = run_logger.runs_dir

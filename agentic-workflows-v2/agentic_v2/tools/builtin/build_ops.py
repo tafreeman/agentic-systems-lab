@@ -17,6 +17,10 @@ from typing import Any
 from ..base import BaseTool, ToolResult
 from ..subprocess_utils import minimal_subprocess_env
 
+REQUIREMENTS_TXT = "requirements.txt"
+PYPROJECT_TOML = "pyproject.toml"
+PACKAGE_JSON = "package.json"
+
 
 def _truncate(text: str, limit: int = 8000) -> str:
     if len(text) <= limit:
@@ -174,7 +178,8 @@ class BuildAppTool(BaseTool):
                 env=minimal_subprocess_env(),
             )
         try:
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+            async with asyncio.timeout(timeout):
+                stdout, stderr = await proc.communicate()
             duration_ms = (time.perf_counter() - started) * 1000
             return {
                 "command": command,
@@ -206,9 +211,9 @@ class BuildAppTool(BaseTool):
         hint = (stack_hint or "auto").lower()
         has_py = any(
             (root / name).exists()
-            for name in ["pyproject.toml", "requirements.txt", "setup.py"]
+            for name in [PYPROJECT_TOML, REQUIREMENTS_TXT, "setup.py"]
         )
-        has_node = (root / "package.json").exists()
+        has_node = (root / PACKAGE_JSON).exists()
 
         if hint in {"python", "node", "fullstack"}:
             detected = hint
@@ -238,16 +243,16 @@ class BuildAppTool(BaseTool):
         }
 
         if detected_stack in {"python", "fullstack"}:
-            if (root / "requirements.txt").exists():
+            if (root / REQUIREMENTS_TXT).exists():
                 commands["install"] = "python -m pip install -r requirements.txt"
-            elif (root / "pyproject.toml").exists():
+            elif (root / PYPROJECT_TOML).exists():
                 commands["install"] = "python -m pip install -e ."
             commands["build"] = "python -m compileall -q ."
             if (root / "tests").exists() or (root / "test").exists():
                 commands["test"] = "python -m pytest -q"
 
         if detected_stack in {"node", "fullstack"}:
-            pkg_path = root / "package.json"
+            pkg_path = root / PACKAGE_JSON
             scripts: dict[str, Any] = {}
             if pkg_path.exists():
                 try:
@@ -325,15 +330,15 @@ class BuildAppTool(BaseTool):
         if detection["detected_stack"] in {"python", "fullstack"}:
             required_files.append("requirements.txt|pyproject.toml|setup.py")
             if not (
-                (root / "requirements.txt").exists()
-                or (root / "pyproject.toml").exists()
+                (root / REQUIREMENTS_TXT).exists()
+                or (root / PYPROJECT_TOML).exists()
                 or (root / "setup.py").exists()
             ):
                 missing_files.append("python manifest")
         if detection["detected_stack"] in {"node", "fullstack"}:
-            required_files.append("package.json")
-            if not (root / "package.json").exists():
-                missing_files.append("package.json")
+            required_files.append(PACKAGE_JSON)
+            if not (root / PACKAGE_JSON).exists():
+                missing_files.append(PACKAGE_JSON)
 
         phase_order = ["install", "build", "test"] + (["smoke"] if run_smoke else [])
         phase_results: dict[str, Any] = {}

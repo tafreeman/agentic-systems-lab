@@ -169,13 +169,14 @@ class McpProtocolClient:
         future: asyncio.Future = asyncio.Future()
         self._pending_requests[request_id] = future
 
+        timeout_value = timeout or DEFAULT_REQUEST_TIMEOUT
         try:
             # Send request
             await self.transport.send(request)
 
             # Wait for response with timeout
-            timeout_value = timeout or DEFAULT_REQUEST_TIMEOUT
-            result = await asyncio.wait_for(future, timeout=timeout_value)
+            async with asyncio.timeout(timeout_value):
+                result = await future
             return result
 
         except TimeoutError:
@@ -339,8 +340,8 @@ class McpProtocolClient:
         if handler:
             try:
                 handler(params)
-            except Exception as e:
-                logger.error(f"Notification handler error for {method}: {e}")
+            except Exception:
+                logger.exception(f"Notification handler error for {method}")
         else:
             logger.debug(f"No handler for notification: {method}")
 

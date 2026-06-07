@@ -96,7 +96,7 @@ def _require_langchain_runtime() -> None:
         if is_missing_langchain_dependency_error(exc):
             raise HTTPException(
                 status_code=501,
-                detail=str(to_missing_langchain_dependency_error(exc)),
+                detail=str(to_missing_langchain_dependency_error()),
             ) from exc
         raise
     _ = WorkflowRunner
@@ -110,7 +110,7 @@ def _compile_workflow_for_validation(config) -> None:
         if is_missing_langchain_dependency_error(exc):
             raise HTTPException(
                 status_code=501,
-                detail=str(to_missing_langchain_dependency_error(exc)),
+                detail=str(to_missing_langchain_dependency_error()),
             ) from exc
         raise
 

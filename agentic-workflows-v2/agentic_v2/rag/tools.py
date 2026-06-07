@@ -171,7 +171,7 @@ class RAGSearchTool(BaseTool):
             )
 
         except Exception as exc:
-            logger.error("RAG search failed: %s", exc)
+            logger.exception("RAG search failed: %s", exc)
             return ToolResult(
                 success=False,
                 error=f"RAG search failed: {exc}",
@@ -294,7 +294,7 @@ class RAGIngestTool(BaseTool):
             )
 
         except Exception as exc:
-            logger.error("RAG ingestion failed for %s: %s", source, exc)
+            logger.exception("RAG ingestion failed for %s: %s", source, exc)
             return ToolResult(
                 success=False,
                 error=f"RAG ingestion failed: {exc}",

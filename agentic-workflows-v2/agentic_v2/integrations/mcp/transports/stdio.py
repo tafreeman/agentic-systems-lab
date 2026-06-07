@@ -120,14 +120,15 @@ class StdioTransport(McpTransport):
         if self._process:
             await self._terminate_process()
 
-        if self._read_task and not self._read_task.done():
-            self._read_task.cancel()
-            try:
-                await self._read_task
-            except asyncio.CancelledError:
-                pass
-
-        self._emit_close()
+        try:
+            if self._read_task and not self._read_task.done():
+                self._read_task.cancel()
+                try:
+                    await self._read_task
+                except asyncio.CancelledError:
+                    raise
+        finally:
+            self._emit_close()
 
     async def _read_loop(self) -> None:
         """Read newline-delimited JSON from stdout.
@@ -158,8 +159,9 @@ class StdioTransport(McpTransport):
 
         except asyncio.CancelledError:
             logger.debug("Read loop cancelled")
+            raise
         except Exception as e:
-            logger.error(f"Read loop error: {e}")
+            logger.exception("Read loop error")
             self._emit_error(e)
         finally:
             # Process died or closed

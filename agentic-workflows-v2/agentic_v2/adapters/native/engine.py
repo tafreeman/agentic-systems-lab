@@ -278,7 +278,7 @@ class NativeEngine:
             ):
                 step_name = event.get("step", "")
                 output_data = event.get("output", {}) or {}
-                asyncio.create_task(
+                _task = asyncio.create_task(
                     store.write(
                         thread_id=thread_id,
                         workflow_name=workflow_name,

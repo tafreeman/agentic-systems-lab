@@ -171,12 +171,6 @@ class CoderAgent(
         # Check if we have a configured backend
         if self.llm_client.backend is None:
             # Fall back to mock response for testing
-            last_user_msg = ""
-            for msg in reversed(messages):
-                if msg.get("role") == "user":
-                    last_user_msg = msg.get("content", "")
-                    break
-
             return {"content": """Here's the code you requested:
 
 ```python
@@ -224,7 +218,7 @@ This is a placeholder implementation."""}
         in_code = False
 
         for line in lines:
-            if line.startswith("    ") or line.startswith("\t"):
+            if line.startswith(("    ", "\t")):
                 in_code = True
                 code_lines.append(line)
             elif in_code and line.strip() == "":

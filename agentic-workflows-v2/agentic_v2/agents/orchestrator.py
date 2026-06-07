@@ -347,7 +347,7 @@ class OrchestratorAgent(
                         return st.id, result
                     except Exception as e:
                         logger.warning(
-                            "Agent %s failed for subtask %s: %s, " "trying fallback",
+                            "Agent %s failed for subtask %s: %s, trying fallback",
                             agent_name,
                             st.id,
                             e,

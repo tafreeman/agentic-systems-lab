@@ -22,6 +22,9 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Callable, Sequence
 
+GH_GPT4O = "gh:openai/gpt-4o"
+OPENAI_GPT4O = "openai:gpt-4o"
+
 
 class ModelTier(IntEnum):
     """Model capability tiers.
@@ -86,7 +89,7 @@ class ChainBuilder:
         self._models.append(model)
         return self
 
-    def add_tier(self, tier: ModelTier, models: Sequence[str]) -> "ChainBuilder":
+    def add_tier(self, models: Sequence[str]) -> "ChainBuilder":
         """Add multiple models for a tier."""
         self._models.extend(models)
         return self
@@ -121,8 +124,8 @@ DEFAULT_CHAINS: dict[ModelTier, FallbackChain] = {
     ModelTier.TIER_3: FallbackChain(
         (
             "gemini:gemini-2.5-flash",
-            "gh:openai/gpt-4o",
-            "openai:gpt-4o",
+            GH_GPT4O,
+            OPENAI_GPT4O,
             "anthropic:claude-sonnet-4-5-20250929",
         ),
         "tier3-default",
@@ -130,8 +133,8 @@ DEFAULT_CHAINS: dict[ModelTier, FallbackChain] = {
     ModelTier.TIER_4: FallbackChain(
         (
             "gemini:gemini-2.5-pro",
-            "gh:openai/gpt-4o",
-            "openai:gpt-4o",
+            GH_GPT4O,
+            OPENAI_GPT4O,
             "anthropic:claude-sonnet-4-5-20250929",
         ),
         "tier4-default",
@@ -139,9 +142,9 @@ DEFAULT_CHAINS: dict[ModelTier, FallbackChain] = {
     ModelTier.TIER_5: FallbackChain(
         (
             "gemini:gemini-2.5-pro",
-            "openai:gpt-4o",
+            OPENAI_GPT4O,
             "anthropic:claude-opus-4-6",
-            "gh:openai/gpt-4o",
+            GH_GPT4O,
         ),
         "tier5-default",
     ),
@@ -289,7 +292,7 @@ class ModelRouter:
             Dict mapping model -> available
         """
         if not self._health_checker:
-            return {m: True for m in models}
+            return dict.fromkeys(models, True)
 
         async def check_one(model: str) -> tuple[str, bool]:
             # Run sync checker in a worker thread (idiomatic 3.9+ replacement for

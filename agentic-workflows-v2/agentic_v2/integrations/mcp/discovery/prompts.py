@@ -85,8 +85,8 @@ class PromptDiscovery:
 
             return prompts
 
-        except Exception as e:
-            logger.error(f"Failed to fetch prompts from {server_name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to fetch prompts from {server_name}")
             raise
 
     async def get_prompt(
@@ -127,8 +127,8 @@ class PromptDiscovery:
             )
             return response
 
-        except Exception as e:
-            logger.error(f"Failed to get prompt {prompt_name} from {server_name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to get prompt {prompt_name} from {server_name}")
             raise
 
     def invalidate_cache(self, server_name: str) -> None:

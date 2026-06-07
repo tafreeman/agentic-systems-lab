@@ -131,9 +131,9 @@ class ConnectionManager:
         """
         try:
             validate_event(message)
-        except ValueError as exc:
-            logger.error(
-                "Refusing to broadcast malformed event for run %s: %s", run_id, exc
+        except ValueError:
+            logger.exception(
+                "Refusing to broadcast malformed event for run %s", run_id
             )
             raise
 
@@ -263,6 +263,6 @@ async def websocket_endpoint(websocket: WebSocket, run_id: str):
     except WebSocketDisconnect:
         manager.disconnect(websocket, run_id)
         logger.info("Client disconnected from execution stream: %s", run_id)
-    except Exception as e:
-        logger.error("WebSocket error for %s: %s", run_id, e)
+    except Exception:
+        logger.exception("WebSocket error for %s", run_id)
         manager.disconnect(websocket, run_id)

@@ -285,7 +285,7 @@ def get_chat_model(model_id: str, temperature: float = 0.0) -> Any:
     from ..settings import get_settings
 
     if get_settings().agentic_no_llm:
-        return build_placeholder_model(temperature)
+        return build_placeholder_model()
 
     if model_id.startswith("gh:"):
         return build_github_model(model_id[3:], temperature)

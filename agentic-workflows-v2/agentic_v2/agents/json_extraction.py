@@ -28,7 +28,7 @@ T = TypeVar("T", bound=BaseModel)
 _FENCED_JSON_RE = re.compile(r"```json\s*(.*?)```", re.DOTALL)
 
 # Pattern: ``` ... ``` (non-greedy, captures content inside any code fence)
-_FENCED_ANY_RE = re.compile(r"```\s*\n?(\{.*?\})\s*\n?```", re.DOTALL)
+_FENCED_ANY_RE = re.compile(r"```\s*\n?(\{[^\}]*\})\s*\n?```", re.DOTALL)
 
 
 def _find_json_string(text: str) -> str:

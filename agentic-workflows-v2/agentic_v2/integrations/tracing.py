@@ -104,8 +104,8 @@ class CompositeTraceAdapter(TraceAdapter):
         for adapter in self.adapters:
             try:
                 adapter.emit(event)
-            except Exception as e:
-                logger.error(f"Error emitting event to {type(adapter).__name__}: {e}")
+            except Exception:
+                logger.exception(f"Error emitting event to {type(adapter).__name__}")
 
 
 class NullTraceAdapter(TraceAdapter):

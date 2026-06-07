@@ -146,7 +146,7 @@ class SmartModelRouter(ModelRouter):
     ) -> None:
         """Record a failed call."""
         stats = self._get_stats(model)
-        stats.record_failure(error_type)
+        stats.record_failure()
 
         # Apply adaptive cooldown
         cooldown = self._calculate_cooldown(stats, error_type)

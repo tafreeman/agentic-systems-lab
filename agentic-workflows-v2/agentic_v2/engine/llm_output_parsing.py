@@ -153,7 +153,7 @@ def normalize_expected_structure(
         if not isinstance(rr, dict):
             raw_text = str(parsed.get("raw_response", ""))
             status_match = re.search(
-                r'"?overall_status"?\s*[:=]\s*"?([A-Za-z_ -]+)"?',
+                r'"?overall_status"?\s*[:=]\s*"?([a-z_ -]+)"?',
                 raw_text,
                 flags=re.IGNORECASE,
             )
@@ -230,7 +230,7 @@ def parse_llm_json_output(
     # salvage status from raw text so when-conditions still work.
     if expected_output_keys and "review_report" in expected_output_keys:
         status_match = re.search(
-            r'"?overall_status"?\s*[:=]\s*"?([A-Za-z_ -]+)"?',
+            r'"?overall_status"?\s*[:=]\s*"?([a-z_ -]+)"?',
             response,
             flags=re.IGNORECASE,
         )

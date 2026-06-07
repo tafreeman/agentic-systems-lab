@@ -117,15 +117,6 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Configure CORS
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=get_allowed_origins(),
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "X-API-Key", "Content-Type", "Accept"],
-    )
-
     # API key authentication (opt-in via AGENTIC_API_KEY env var)
     app.add_middleware(APIKeyMiddleware)
 
@@ -133,6 +124,16 @@ def create_app() -> FastAPI:
     from .middleware import SanitizationASGIMiddleware
 
     app.add_middleware(SanitizationASGIMiddleware)
+
+    # Configure CORS — must be added last so it is the outermost middleware layer
+    # and adds CORS headers to all responses (including those from inner middleware).
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=get_allowed_origins(),
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "X-API-Key", "Content-Type", "Accept"],
+    )
 
     # Include routes
     app.include_router(health.router, prefix="/api")

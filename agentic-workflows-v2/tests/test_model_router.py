@@ -59,7 +59,7 @@ class TestModelStats:
         stats = ModelStats(model_id="test")
 
         stats.record_success(latency_ms=100)
-        stats.record_failure("timeout")
+        stats.record_failure()
 
         assert stats.failure_count == 1
         assert stats.success_rate == 0.5
@@ -86,8 +86,8 @@ class TestModelStats:
         stats.record_success(latency_ms=100)
         stats.record_success(latency_ms=100)
         stats.record_success(latency_ms=100)
-        stats.record_failure("error")
-        stats.record_failure("error")
+        stats.record_failure()
+        stats.record_failure()
 
         assert stats.recent_success_rate == 0.6
 
@@ -110,9 +110,9 @@ class TestModelStats:
         assert stats.circuit_state == CircuitState.CLOSED
 
         # Trigger failures
-        stats.record_failure("error")
-        stats.record_failure("error")
-        stats.record_failure("error")
+        stats.record_failure()
+        stats.record_failure()
+        stats.record_failure()
 
         assert stats.circuit_state == CircuitState.OPEN
         assert not stats.check_circuit()
@@ -124,8 +124,8 @@ class TestModelStats:
         )
 
         # Open circuit
-        stats.record_failure("error")
-        stats.record_failure("error")
+        stats.record_failure()
+        stats.record_failure()
         assert stats.circuit_state == CircuitState.OPEN
 
         # Simulate time passing (both wall clock and monotonic)
@@ -163,7 +163,7 @@ class TestModelStats:
         """Test stats serialization."""
         stats = ModelStats(model_id="test")
         stats.record_success(latency_ms=100)
-        stats.record_failure("error")
+        stats.record_failure()
 
         data = stats.to_dict()
         assert data["model_id"] == "test"

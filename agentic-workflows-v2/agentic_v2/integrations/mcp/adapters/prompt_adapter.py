@@ -144,6 +144,6 @@ class McpPromptAdapter:
             logger.info(f"Created {len(adapters)} prompt adapters for {server_name}")
             return adapters
 
-        except Exception as e:
-            logger.error(f"Failed to create prompt adapters for {server_name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to create prompt adapters for {server_name}")
             return []

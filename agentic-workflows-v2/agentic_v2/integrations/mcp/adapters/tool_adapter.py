@@ -90,10 +90,10 @@ class McpToolAdapter:
 
         try:
             # Call remote tool with timeout
-            response = await asyncio.wait_for(
-                self.client.call_tool(self.tool_descriptor.name, arguments),
-                timeout=timeout_value,
-            )
+            async with asyncio.timeout(timeout_value):
+                response = await self.client.call_tool(
+                    self.tool_descriptor.name, arguments
+                )
 
             # Extract content from response
             content = response.get("content", [])
@@ -156,7 +156,7 @@ class McpToolAdapter:
         except Exception as e:
             # Catch-all for any unexpected errors
             error_msg = f"Unexpected error: {e}"
-            logger.error(f"{self.name}: {error_msg}", exc_info=True)
+            logger.exception(f"{self.name}: {error_msg}")
             return f"Error: {error_msg}"
 
     def to_dict(self) -> dict[str, Any]:
@@ -206,6 +206,6 @@ class McpToolAdapter:
             logger.info(f"Created {len(adapters)} tool adapters for {server_name}")
             return adapters
 
-        except Exception as e:
-            logger.error(f"Failed to create tool adapters for {server_name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to create tool adapters for {server_name}")
             return []

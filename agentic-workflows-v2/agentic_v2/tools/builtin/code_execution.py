@@ -160,11 +160,10 @@ class CodeExecutionTool(BaseTool):
                     top = alias.name.split(".")[0]
                     if top in self._DANGEROUS_IMPORTS:
                         return f"Blocked: import of restricted module '{top}'"
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    top = node.module.split(".")[0]
-                    if top in self._DANGEROUS_IMPORTS:
-                        return f"Blocked: import from restricted module '{top}'"
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                top = node.module.split(".")[0]
+                if top in self._DANGEROUS_IMPORTS:
+                    return f"Blocked: import from restricted module '{top}'"
 
         return None
 
@@ -290,7 +289,7 @@ class CodeExecutionTool(BaseTool):
 
             try:
                 output = json.loads(stdout_str)
-            except (json.JSONDecodeError, ValueError):
+            except ValueError:
                 # Subprocess crashed or produced non-JSON
                 return ToolResult(
                     success=False,

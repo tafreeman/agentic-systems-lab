@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Pattern for variable expansion: ${input:var_name} or ${env:var_name} or ${VAR_NAME}
 VAR_EXPANSION_PATTERN = re.compile(
-    r"\$\{(?:input:)?(?:env:)?([A-Za-z_][A-Za-z0-9_]*)\}"
+    r"\$\{(?:input:)?(?:env:)?([A-Za-z_]\w*)\}"
 )
 
 
@@ -201,8 +201,8 @@ def parse_server_config(
             )
             return None
 
-    except Exception as e:
-        logger.error(f"Failed to parse server '{server_name}': {e}")
+    except Exception:
+        logger.exception(f"Failed to parse server '{server_name}'")
         return None
 
 
@@ -245,11 +245,11 @@ def load_config_file(
         logger.info(f"Loaded {len(configs)} server configs from {file_path}")
         return configs
 
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in {file_path}: {e}")
+    except json.JSONDecodeError:
+        logger.exception(f"Invalid JSON in {file_path}")
         return []
-    except Exception as e:
-        logger.error(f"Failed to load config from {file_path}: {e}")
+    except Exception:
+        logger.exception(f"Failed to load config from {file_path}")
         return []
 
 

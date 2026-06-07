@@ -219,11 +219,9 @@ class DAGExecutor:
                     # Unhandled programming error inside run_step — retrieve the
                     # step name from the task (set via name= in create_task).
                     failed_name = task.get_name()
-                    logger.error(
-                        "Unhandled exception in DAG task for step %r: %s",
+                    logger.exception(
+                        "Unhandled exception in DAG task for step %r",
                         failed_name,
-                        exc,
-                        exc_info=True,
                     )
                     running.discard(failed_name)
                     step_result = StepResult(
