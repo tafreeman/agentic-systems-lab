@@ -152,7 +152,6 @@ def load_benchmark(
     limit: int | None = None,
     language: str | None = None,
     difficulty: str | None = None,
-    cache_dir: str | None = None,
     force_refresh: bool = False,
 ) -> list[BenchmarkTask]:
     """Load tasks from a benchmark.
@@ -162,7 +161,6 @@ def load_benchmark(
         limit: Maximum number of tasks to load (None = all)
         language: Filter by programming language
         difficulty: Filter by difficulty level
-        cache_dir: Custom cache directory (default: ~/.cache/agentic-benchmarks)
         force_refresh: Force re-download even if cached
 
     Returns:

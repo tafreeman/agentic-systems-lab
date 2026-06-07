@@ -146,7 +146,7 @@ class LLMEvaluator(Evaluator):
                 }
 
         except Exception as e:
-            logger.error(f"LLM Evaluation failed: {e}")
+            logger.exception("LLM Evaluation failed")
             return {
                 "score": 0.0,
                 "passed": False,
