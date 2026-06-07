@@ -294,7 +294,7 @@ class McpOutputStorage:
             if deleted_count > 0:
                 logger.info(f"Cleaned up {deleted_count} old output files")
 
-        except Exception as e:
-            logger.error(f"Error during cleanup: {e}")
+        except Exception:
+            logger.exception("Error during cleanup")
 
         return deleted_count

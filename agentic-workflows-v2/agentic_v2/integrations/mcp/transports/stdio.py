@@ -5,6 +5,7 @@ Implements graceful shutdown with SIGINT → SIGTERM → SIGKILL escalation.
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import signal
@@ -123,10 +124,8 @@ class StdioTransport(McpTransport):
         try:
             if self._read_task and not self._read_task.done():
                 self._read_task.cancel()
-                try:
+                with contextlib.suppress(asyncio.CancelledError):
                     await self._read_task
-                except asyncio.CancelledError:
-                    raise
         finally:
             self._emit_close()
 

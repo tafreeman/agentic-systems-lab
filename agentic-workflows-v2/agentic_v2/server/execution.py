@@ -509,11 +509,9 @@ async def _run_and_evaluate(
         )
         logger.info("Completed background execution for run_id=%s", run_id)
     except Exception as e:
-        logger.error(
-            "Error in background execution for run_id=%s: %s",
+        logger.exception(
+            "Error in background execution for run_id=%s",
             run_id,
-            e,
-            exc_info=True,
         )
         await websocket.manager.broadcast(
             run_id,

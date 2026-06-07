@@ -319,8 +319,8 @@ class McpConnectionManager:
             for metadata in self._connections.values():
                 try:
                     await metadata.client.close()
-                except Exception as e:
-                    logger.error(f"Error closing connection {metadata.name}: {e}")
+                except Exception:
+                    logger.exception(f"Error closing connection {metadata.name}")
 
             self._connections.clear()
 

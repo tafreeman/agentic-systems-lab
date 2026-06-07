@@ -5,6 +5,7 @@ Uses the `websockets` library for async WebSocket client implementation.
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 from typing import Dict, Optional
@@ -126,10 +127,8 @@ class WebSocketTransport(McpTransport):
         try:
             if self._receive_task and not self._receive_task.done():
                 self._receive_task.cancel()
-                try:
+                with contextlib.suppress(asyncio.CancelledError):
                     await self._receive_task
-                except asyncio.CancelledError:
-                    raise
         finally:
             self._emit_close()
 

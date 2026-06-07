@@ -306,7 +306,7 @@ class StepExecutor:
                 ) and "review_report" not in result.output_data:
                     raw_text = str(result.output_data.get("raw_response", ""))
                     status_match = re.search(
-                        r'"?overall_status"?\s*[:=]\s*"?([A-Za-z _-]+)"?',
+                        r'"?overall_status"?\s*[:=]\s*"?([a-z _-]+)"?',
                         raw_text,
                         flags=re.IGNORECASE,
                     )
