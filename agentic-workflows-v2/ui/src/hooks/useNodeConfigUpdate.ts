@@ -75,7 +75,7 @@ export function useNodeConfigUpdate({ runId }: UseNodeConfigUpdateOptions) {
 
   const updateNodeConfig = useCallback(
     (stepName: string, config: NodeConfig) => {
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      if (wsRef.current?.readyState !== WebSocket.OPEN) {
         console.warn("WebSocket not connected, cannot send config update");
         return;
       }

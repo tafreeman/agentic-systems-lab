@@ -186,12 +186,12 @@ export default function WorkflowEditorPage() {
               <div className="space-y-2 p-3 text-xs">
                 {validateMutation.isError && (
                   <div className="rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-red-300">
-                    {(validateMutation.error as Error).message}
+                    {validateMutation.error.message}
                   </div>
                 )}
                 {saveMutation.isError && (
                   <div className="rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-red-300">
-                    {(saveMutation.error as Error).message}
+                    {saveMutation.error.message}
                   </div>
                 )}
                 {issueCount === 0 && !validateMutation.isPending && (

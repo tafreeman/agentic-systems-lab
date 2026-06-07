@@ -10,7 +10,7 @@ const config: Record<StepStatus, { label: string; color: string; animate?: boole
 };
 
 interface Props {
-  status: StepStatus | string;
+  status: string;
   size?: "sm" | "md";
 }
 

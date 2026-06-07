@@ -207,7 +207,7 @@ export default function NodeConfigOverlay({
                 onChange={(e) =>
                   handleConfigChange(
                     "max_tokens",
-                    e.target.value ? parseInt(e.target.value, 10) : undefined
+                    e.target.value ? Number.parseInt(e.target.value, 10) : undefined
                   )
                 }
                 placeholder="4096"
@@ -230,7 +230,7 @@ export default function NodeConfigOverlay({
                 onChange={(e) =>
                   handleConfigChange(
                     "top_p",
-                    e.target.value ? parseFloat(e.target.value) : undefined
+                    e.target.value ? Number.parseFloat(e.target.value) : undefined
                   )
                 }
                 placeholder="1.0"

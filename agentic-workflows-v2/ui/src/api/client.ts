@@ -22,7 +22,7 @@ const BASE = "/api";
 
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const requestUrl =
-    typeof globalThis.window !== "undefined" && url.startsWith("/")
+    globalThis.window !== undefined && url.startsWith("/")
       ? new URL(url, globalThis.location.origin).toString()
       : url;
 

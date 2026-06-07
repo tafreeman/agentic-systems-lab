@@ -85,26 +85,25 @@ export default function RunDetailPage() {
   const successPercent =
     run.success_rate <= 1 ? run.success_rate * 100 : run.success_rate;
 
-  const runToneWhenNotSuccess: "err" | "clay" | "dim" =
-    run.status === "failed" || run.status === "error"
-      ? "err"
-      : run.status === "running" || run.status === "in_progress"
-        ? "clay"
-        : "dim";
+  let runToneWhenNotSuccess: "err" | "clay" | "dim" = "dim";
+  if (run.status === "failed" || run.status === "error") {
+    runToneWhenNotSuccess = "err";
+  } else if (run.status === "running" || run.status === "in_progress") {
+    runToneWhenNotSuccess = "clay";
+  }
   const runTone = run.status === "success" ? ("ok" as const) : runToneWhenNotSuccess;
 
   const evalData = run.extra?.evaluation;
   const evalPct =
-    evalData?.weighted_score !== undefined
-      ? Math.max(0, Math.min(1, evalData.weighted_score / 100))
-      : null;
+    evalData?.weighted_score === undefined
+      ? null
+      : Math.max(0, Math.min(1, evalData.weighted_score / 100));
 
-  const evalBarColor =
-    evalPct !== null && evalPct > 0.75
-      ? "b-green"
-      : evalPct !== null && evalPct > 0.5
-        ? "b-amber"
-        : "b-red";
+  let evalBarColor: "b-green" | "b-amber" | "b-red" = "b-red";
+  if (evalPct !== null) {
+    if (evalPct > 0.75) evalBarColor = "b-green";
+    else if (evalPct > 0.5) evalBarColor = "b-amber";
+  }
 
   return (
     <div className="flex h-full flex-col">

@@ -82,9 +82,8 @@ export default function EvaluationsPage() {
             <div className="flex justify-center p-12 font-mono text-[11px] text-b-text-dim">
               Loading evaluations...
             </div>
-          ) : emptyContent !== null ? (
-            emptyContent
           ) : (
+            emptyContent ?? (
             <>
               {/* Top row: histogram + workflow pass rates */}
               <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-5">
@@ -297,6 +296,7 @@ export default function EvaluationsPage() {
                 </div>
               </BBox>
             </>
+            )
           )}
         </div>
       </div>

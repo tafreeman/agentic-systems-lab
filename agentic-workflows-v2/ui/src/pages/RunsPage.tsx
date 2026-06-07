@@ -33,7 +33,7 @@ function formatWhen(iso: string | null | undefined): string {
 function shortId(run: RunSummary): string {
   const id = run.run_id ?? run.filename;
   const parts = id.split(/[-_/]/);
-  return (parts[parts.length - 1] ?? id).slice(0, 10);
+  return (parts.at(-1) ?? id).slice(0, 10);
 }
 
 export default function RunsPage() {
@@ -176,12 +176,10 @@ export default function RunsPage() {
                     )}
                     {filtered.map((r) => {
                       const score = r.evaluation_score ?? null;
-                      const scoreColor =
-                        score === null
-                          ? "text-b-text-faint"
-                          : score > 0.85
-                            ? "text-b-green"
-                            : "text-b-amber";
+                      let scoreColor = "text-b-text-faint";
+                      if (score !== null) {
+                        scoreColor = score > 0.85 ? "text-b-green" : "text-b-amber";
+                      }
                       return (
                         <tr
                           key={r.filename}

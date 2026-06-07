@@ -194,12 +194,15 @@ export function LiveStepDetails({ step }: Readonly<LiveStepDetailsProps>) {
     step.scores !== null &&
     Object.keys(step.scores).length > 0;
 
-  const noOutputFallback = isRunning ? (
-    <span className="text-gray-500 italic">streaming...</span>
-  ) : isFailed ? (
+  const failedOrEmptyOutput = isFailed ? (
     <span className="text-gray-600">No output (step failed).</span>
   ) : (
     <span className="text-gray-600">No output captured yet.</span>
+  );
+  const noOutputFallback = isRunning ? (
+    <span className="text-gray-500 italic">streaming...</span>
+  ) : (
+    failedOrEmptyOutput
   );
 
   return (
