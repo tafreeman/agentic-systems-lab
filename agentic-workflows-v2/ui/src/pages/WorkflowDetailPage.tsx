@@ -172,13 +172,15 @@ export default function WorkflowDetailPage() {
             <Play className="h-3 w-3" />
           )}
           <span>
-            {batchProgress
-              ? `${batchProgress.done}/${batchProgress.total}`
-              : runMutation.isPending
-                ? "[…] starting"
-                : configRef.current.evaluation.enabled
-                  ? "[▶] run + eval"
-                  : "[▶] run"}
+            {(() => {
+              if (batchProgress)
+                return `${batchProgress.done}/${batchProgress.total}`;
+              if (runMutation.isPending) return "[…] starting";
+              const runLabel = configRef.current.evaluation.enabled
+                ? "[▶] run + eval"
+                : "[▶] run";
+              return runLabel;
+            })()}
           </span>
         </button>
       </BTopBar>
@@ -218,13 +220,16 @@ export default function WorkflowDetailPage() {
             <div className="flex h-full items-center justify-center font-mono text-[11px] text-b-text-dim">
               $ loading dag…
             </div>
-          ) : dag ? (
-            <WorkflowDAG dagNodes={dag.nodes} dagEdges={dag.edges} />
-          ) : (
-            <div className="flex h-full items-center justify-center font-mono text-[11px] text-b-red">
-              $ failed to load dag
-            </div>
-          )}
+          ) : (() => {
+            const dagContent = dag ? (
+              <WorkflowDAG dagNodes={dag.nodes} dagEdges={dag.edges} />
+            ) : (
+              <div className="flex h-full items-center justify-center font-mono text-[11px] text-b-red">
+                $ failed to load dag
+              </div>
+            );
+            return dagContent;
+          })()}
         </div>
 
         <div className="w-[340px] overflow-y-auto bg-b-bg0 p-3 space-y-3">
@@ -245,7 +250,7 @@ export default function WorkflowDetailPage() {
 
       {runMutation.isError && (
         <div className="border-t border-b-red bg-b-red/10 px-4 py-2 font-mono text-[11px] text-b-red">
-          [!] {(runMutation.error as Error).message}
+          [!] {runMutation.error?.message}
         </div>
       )}
     </div>

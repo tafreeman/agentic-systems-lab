@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useRuns } from "../hooks/useRuns";
 import BTopBar from "../components/layout/BTopBar";
 import BBox from "../components/common/BBox";
-import BPill from "../components/common/BPill";
+import BPill, { type BPillTone } from "../components/common/BPill";
 import BAsciiBar from "../components/common/BAsciiBar";
 import EvaluationRubricAccordion from "../components/evaluations/EvaluationRubricAccordion";
 
@@ -18,7 +18,7 @@ export default function EvaluationsPage() {
 
   // Score histogram — 20 buckets 0..100
   const histogram = useMemo(() => {
-    const buckets = Array(20).fill(0);
+    const buckets = new Array(20).fill(0);
     evaluatedRuns.forEach((r) => {
       const score = r.evaluation_score ?? 0;
       const normalized = score <= 1 ? score * 100 : score;
@@ -50,6 +50,15 @@ export default function EvaluationsPage() {
     }));
   }, [evaluatedRuns]);
 
+  const emptyContent =
+    evaluatedRuns.length === 0 ? (
+      <BBox>
+        <div className="p-8 text-center font-mono text-[11px] text-b-text-dim">
+          No evaluations found
+        </div>
+      </BBox>
+    ) : null;
+
   return (
     <div className="flex h-full flex-col">
       <BTopBar path="evaluations" />
@@ -73,12 +82,8 @@ export default function EvaluationsPage() {
             <div className="flex justify-center p-12 font-mono text-[11px] text-b-text-dim">
               Loading evaluations...
             </div>
-          ) : evaluatedRuns.length === 0 ? (
-            <BBox>
-              <div className="p-8 text-center font-mono text-[11px] text-b-text-dim">
-                No evaluations found
-              </div>
-            </BBox>
+          ) : emptyContent !== null ? (
+            emptyContent
           ) : (
             <>
               {/* Top row: histogram + workflow pass rates */}
@@ -90,12 +95,8 @@ export default function EvaluationsPage() {
                         {histogram.map((c, i) => {
                           const h = (c / maxBucket) * 100;
                           const mid = i * 5 + 2.5;
-                          const color =
-                            mid < 50
-                              ? "bg-b-red"
-                              : mid < 75
-                                ? "bg-b-clay"
-                                : "bg-b-green";
+                          const colorHighOrMid = mid < 75 ? "bg-b-clay" : "bg-b-green";
+                          const color = mid < 50 ? "bg-b-red" : colorHighOrMid;
                           return (
                             <div
                               key={i}
@@ -130,31 +131,29 @@ export default function EvaluationsPage() {
                           no data
                         </div>
                       )}
-                      {workflowPassRate.map((w) => (
-                        <div key={w.name}>
-                          <div className="flex items-center justify-between font-mono text-[11px] text-b-text-dim">
-                            <span className="truncate">
-                              {w.name} · {(w.rate * 100).toFixed(0)}%{" "}
-                              <span className="text-b-text-faint">
-                                ({w.total})
+                      {workflowPassRate.map((w) => {
+                        const wRateHighOrMid = w.rate >= 0.5 ? "b-amber" : "b-red";
+                        const wRateColor = w.rate >= 0.75 ? "b-green" : wRateHighOrMid;
+                        return (
+                          <div key={w.name}>
+                            <div className="flex items-center justify-between font-mono text-[11px] text-b-text-dim">
+                              <span className="truncate">
+                                {w.name} · {(w.rate * 100).toFixed(0)}%{" "}
+                                <span className="text-b-text-faint">
+                                  ({w.total})
+                                </span>
                               </span>
-                            </span>
+                            </div>
+                            <div className="mt-0.5">
+                              <BAsciiBar
+                                value={w.rate}
+                                width={22}
+                                color={wRateColor}
+                              />
+                            </div>
                           </div>
-                          <div className="mt-0.5">
-                            <BAsciiBar
-                              value={w.rate}
-                              width={22}
-                              color={
-                                w.rate >= 0.75
-                                  ? "b-green"
-                                  : w.rate >= 0.5
-                                    ? "b-amber"
-                                    : "b-red"
-                              }
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </BBox>
                 </div>
@@ -185,26 +184,34 @@ export default function EvaluationsPage() {
                         const passFromGrade =
                           grade === "A" || grade === "B";
                         const warnFromGrade = grade === "C";
-                        const passTone = grade
-                          ? passFromGrade
-                            ? "ok"
-                            : warnFromGrade
-                              ? "warn"
-                              : "err"
-                          : pct >= 75
-                            ? "ok"
-                            : "err";
-                        const passLabel = grade
-                          ? passFromGrade
-                            ? "pass"
-                            : warnFromGrade
-                              ? "warn"
-                              : "fail"
-                          : pct >= 75
-                            ? "pass"
-                            : "fail";
+                        let passTone: BPillTone;
+                        if (grade) {
+                          if (passFromGrade) {
+                            passTone = "ok";
+                          } else if (warnFromGrade) {
+                            passTone = "warn";
+                          } else {
+                            passTone = "err";
+                          }
+                        } else {
+                          passTone = pct >= 75 ? "ok" : "err";
+                        }
+                        let passLabel: string;
+                        if (grade) {
+                          if (passFromGrade) {
+                            passLabel = "pass";
+                          } else if (warnFromGrade) {
+                            passLabel = "warn";
+                          } else {
+                            passLabel = "fail";
+                          }
+                        } else {
+                          passLabel = pct >= 75 ? "pass" : "fail";
+                        }
                         const isExpanded =
                           expandedFilename === run.filename;
+                        const pctColorMidOrLow = pct >= 50 ? "b-amber" : "b-red";
+                        const pctColor = pct >= 75 ? "b-green" : pctColorMidOrLow;
 
                         return (
                           <Fragment key={run.run_id ?? run.filename}>
@@ -226,13 +233,7 @@ export default function EvaluationsPage() {
                                 <BAsciiBar
                                   value={Math.max(0, Math.min(1, pct / 100))}
                                   width={20}
-                                  color={
-                                    pct >= 75
-                                      ? "b-green"
-                                      : pct >= 50
-                                        ? "b-amber"
-                                        : "b-red"
-                                  }
+                                  color={pctColor}
                                 />
                               </td>
                               <td className="px-3 py-2 text-b-text-mid">

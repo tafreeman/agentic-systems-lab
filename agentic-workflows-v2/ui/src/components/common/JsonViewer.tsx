@@ -11,7 +11,7 @@ export default function JsonViewer({
   data,
   defaultExpanded = false,
   maxDepth = 4,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <div className="font-mono text-xs leading-relaxed">
       <JsonNode value={data} depth={0} expanded={defaultExpanded} maxDepth={maxDepth} />
@@ -24,12 +24,12 @@ function JsonNode({
   depth,
   expanded: initialExpanded,
   maxDepth,
-}: {
+}: Readonly<{
   value: unknown;
   depth: number;
   expanded: boolean;
   maxDepth: number;
-}) {
+}>) {
   const [expanded, setExpanded] = useState(initialExpanded && depth < maxDepth);
 
   if (value === null) return <span className="text-gray-500">null</span>;
@@ -106,13 +106,13 @@ function Collapsible({
   summary,
   bracket,
   children,
-}: {
+}: Readonly<{
   expanded: boolean;
   onToggle: () => void;
   summary: string;
   bracket: [string, string];
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <span>
       <button
@@ -132,9 +132,14 @@ function Collapsible({
           <span className="text-gray-500">{bracket[1]}</span>
         </>
       ) : (
-        <span className="cursor-pointer text-gray-500 hover:text-gray-300" onClick={onToggle}>
+        <button
+          type="button"
+          className="cursor-pointer text-gray-500 hover:text-gray-300"
+          onClick={onToggle}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onToggle(); }}
+        >
           {bracket[0]} {summary} {bracket[1]}
-        </span>
+        </button>
       )}
     </span>
   );

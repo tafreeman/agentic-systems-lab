@@ -124,12 +124,8 @@ export default function LivePage() {
   }, [runningStep]);
 
 
-  const runTone =
-    workflowStatus === "completed"
-      ? ("ok" as const)
-      : workflowStatus === "error"
-        ? ("err" as const)
-        : ("clay" as const);
+  const errorTone = workflowStatus === "error" ? ("err" as const) : ("clay" as const);
+  const runTone = workflowStatus === "completed" ? ("ok" as const) : errorTone;
 
   return (
     <div className="flex h-full flex-col">

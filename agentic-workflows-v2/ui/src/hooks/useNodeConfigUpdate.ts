@@ -31,8 +31,8 @@ export function useNodeConfigUpdate({ runId }: UseNodeConfigUpdateOptions) {
         // When in dev: ws://localhost:5174/ws/execution/{runId}
         // Vite proxy rewrites to: ws://localhost:8012/ws/execution/{runId}
         const wsUrl = `/ws/execution/${runId}`;
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const fullUrl = `${protocol}//${window.location.host}${wsUrl}`;
+        const protocol = globalThis.location.protocol === "https:" ? "wss:" : "ws:";
+        const fullUrl = `${protocol}//${globalThis.location.host}${wsUrl}`;
         
         wsRef.current = new WebSocket(fullUrl);
 

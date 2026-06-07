@@ -85,20 +85,26 @@ export default function RunDetailPage() {
   const successPercent =
     run.success_rate <= 1 ? run.success_rate * 100 : run.success_rate;
 
-  const runTone =
-    run.status === "success"
-      ? ("ok" as const)
-      : run.status === "failed" || run.status === "error"
-        ? ("err" as const)
-        : run.status === "running" || run.status === "in_progress"
-          ? ("clay" as const)
-          : ("dim" as const);
+  const runToneWhenNotSuccess: "err" | "clay" | "dim" =
+    run.status === "failed" || run.status === "error"
+      ? "err"
+      : run.status === "running" || run.status === "in_progress"
+        ? "clay"
+        : "dim";
+  const runTone = run.status === "success" ? ("ok" as const) : runToneWhenNotSuccess;
 
   const evalData = run.extra?.evaluation;
   const evalPct =
     evalData?.weighted_score !== undefined
       ? Math.max(0, Math.min(1, evalData.weighted_score / 100))
       : null;
+
+  const evalBarColor =
+    evalPct !== null && evalPct > 0.75
+      ? "b-green"
+      : evalPct !== null && evalPct > 0.5
+        ? "b-amber"
+        : "b-red";
 
   return (
     <div className="flex h-full flex-col">
@@ -202,16 +208,7 @@ export default function RunDetailPage() {
                   </div>
                 </div>
                 <div className="mt-3">
-                  <BAsciiBar
-                    value={evalPct}
-                    color={
-                      evalPct > 0.75
-                        ? "b-green"
-                        : evalPct > 0.5
-                          ? "b-amber"
-                          : "b-red"
-                    }
-                  />
+                  <BAsciiBar value={evalPct} color={evalBarColor} />
                 </div>
               </div>
             </BBox>

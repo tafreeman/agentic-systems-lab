@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type Theme = "dark" | "paper" | "bolt";
 
@@ -25,15 +25,11 @@ function readStoredTheme(): Theme {
 }
 
 export function useTheme(): [Theme, (t: Theme) => void] {
-  const [theme, setThemeState] = useState<Theme>(() => readStoredTheme());
+  const [theme, setTheme] = useState<Theme>(() => readStoredTheme());
 
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
-
-  const setTheme = useCallback((t: Theme) => {
-    setThemeState(t);
-  }, []);
 
   return [theme, setTheme];
 }

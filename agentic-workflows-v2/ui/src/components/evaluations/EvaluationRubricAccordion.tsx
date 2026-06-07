@@ -1,5 +1,4 @@
 import { useRunEvaluationDetail } from "../../hooks/useRuns";
-import type { HardGates } from "../../api/types";
 import BPill from "../common/BPill";
 import type { BPillTone } from "../common/BPill";
 import CriterionRow from "./CriterionRow";
@@ -16,7 +15,7 @@ function gradeToTone(grade: string): BPillTone {
 
 export default function EvaluationRubricAccordion({
   filename,
-}: EvaluationRubricAccordionProps) {
+}: Readonly<EvaluationRubricAccordionProps>) {
   const { data, isLoading } = useRunEvaluationDetail(filename);
 
   if (isLoading) {
@@ -37,7 +36,7 @@ export default function EvaluationRubricAccordion({
     );
   }
 
-  const hardGates = detail.hard_gates as HardGates | null | undefined;
+  const hardGates = detail.hard_gates;
 
   return (
     <div className="space-y-3 py-2">
@@ -114,7 +113,7 @@ export default function EvaluationRubricAccordion({
                 key={gate}
                 className={passed ? "text-b-green" : "text-b-red"}
               >
-                {passed ? "[OK]" : "[FAIL]"} {gate.replace(/_/g, " ")}
+                {passed ? "[OK]" : "[FAIL]"} {gate.replaceAll("_", " ")}
               </div>
             ))}
           </div>

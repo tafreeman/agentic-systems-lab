@@ -4,7 +4,7 @@ import { useWorkflowStream } from "../hooks/useWorkflowStream";
 
 // Mock WebSocket
 class MockWebSocket {
-  static instances: MockWebSocket[] = [];
+  static readonly instances: MockWebSocket[] = [];
   onopen: (() => void) | null = null;
   onmessage: ((evt: { data: string }) => void) | null = null;
   onclose: (() => void) | null = null;
@@ -32,7 +32,7 @@ class MockWebSocket {
 
 describe("useWorkflowStream", () => {
   beforeEach(() => {
-    MockWebSocket.instances = [];
+    MockWebSocket.instances.splice(0);
     vi.stubGlobal("WebSocket", MockWebSocket);
   });
 

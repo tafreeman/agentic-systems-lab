@@ -95,7 +95,7 @@ export default function RunsPage() {
                 const count =
                   f === "all"
                     ? (runs?.length ?? 0)
-                    : counts[f as keyof typeof counts];
+                    : counts[f];
                 const active = filter === f;
                 return (
                   <button
@@ -176,6 +176,12 @@ export default function RunsPage() {
                     )}
                     {filtered.map((r) => {
                       const score = r.evaluation_score ?? null;
+                      const scoreColor =
+                        score === null
+                          ? "text-b-text-faint"
+                          : score > 0.85
+                            ? "text-b-green"
+                            : "text-b-amber";
                       return (
                         <tr
                           key={r.filename}
@@ -218,13 +224,7 @@ export default function RunsPage() {
                             <DurationDisplay ms={r.total_duration_ms} />
                           </td>
                           <td
-                            className={`px-3 py-2 text-right tabular-nums ${
-                              score === null
-                                ? "text-b-text-faint"
-                                : score > 0.85
-                                  ? "text-b-green"
-                                  : "text-b-amber"
-                            }`}
+                            className={`px-3 py-2 text-right tabular-nums ${scoreColor}`}
                           >
                             {score === null ? "—" : (score * 100).toFixed(0)}
                           </td>

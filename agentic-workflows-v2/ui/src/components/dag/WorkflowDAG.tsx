@@ -130,7 +130,7 @@ function WorkflowDAGInner({
 
   // Auto-pan / fitView to the running node(s) when changed
   useEffect(() => {
-    const runningStr = [...runningStepIds].sort().join(",");
+    const runningStr = [...runningStepIds].sort((a, b) => a.localeCompare(b)).join(",");
     if (!runningStr || runningStr === prevRunningStrRef.current) return;
     if (userInteractedRef.current) return; // respect manual navigation
 
@@ -306,7 +306,7 @@ function WorkflowDAGInner({
         fitViewOptions={{ padding: 0.2 }}
         proOptions={{ hideAttribution: true }}
         minZoom={0.2}
-        maxZoom={2.0}
+        maxZoom={2}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1f1f2e" />
         <Controls showInteractive={false} className="dag-controls" />

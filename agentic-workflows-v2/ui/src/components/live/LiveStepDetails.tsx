@@ -194,6 +194,14 @@ export function LiveStepDetails({ step }: Readonly<LiveStepDetailsProps>) {
     step.scores !== null &&
     Object.keys(step.scores).length > 0;
 
+  const noOutputFallback = isRunning ? (
+    <span className="text-gray-500 italic">streaming...</span>
+  ) : isFailed ? (
+    <span className="text-gray-600">No output (step failed).</span>
+  ) : (
+    <span className="text-gray-600">No output captured yet.</span>
+  );
+
   return (
     <div className="space-y-3">
       {isFailed && step.error && (
@@ -230,11 +238,7 @@ export function LiveStepDetails({ step }: Readonly<LiveStepDetailsProps>) {
         </div>
         <div data-testid="step-scores" className="text-xs text-gray-300">
           {hasScores ? (
-            <JsonViewer
-              data={step.scores as Record<string, unknown>}
-              defaultExpanded
-              maxDepth={2}
-            />
+            <JsonViewer data={step.scores} defaultExpanded maxDepth={2} />
           ) : (
             <span>—</span>
           )}
@@ -250,11 +254,7 @@ export function LiveStepDetails({ step }: Readonly<LiveStepDetailsProps>) {
           className="max-h-60 overflow-y-auto rounded-md bg-surface-0 p-3 text-xs"
         >
           {hasInput ? (
-            <JsonViewer
-              data={step.input as Record<string, unknown>}
-              defaultExpanded
-              maxDepth={3}
-            />
+            <JsonViewer data={step.input} defaultExpanded maxDepth={3} />
           ) : (
             <span className="text-gray-600">No input captured yet.</span>
           )}
@@ -270,17 +270,9 @@ export function LiveStepDetails({ step }: Readonly<LiveStepDetailsProps>) {
           className="max-h-60 overflow-y-auto rounded-md bg-surface-0 p-3 text-xs"
         >
           {hasOutput ? (
-            <JsonViewer
-              data={step.output as Record<string, unknown>}
-              defaultExpanded
-              maxDepth={3}
-            />
-          ) : isRunning ? (
-            <span className="text-gray-500 italic">streaming...</span>
-          ) : isFailed ? (
-            <span className="text-gray-600">No output (step failed).</span>
+            <JsonViewer data={step.output} defaultExpanded maxDepth={3} />
           ) : (
-            <span className="text-gray-600">No output captured yet.</span>
+            noOutputFallback
           )}
         </div>
       </div>

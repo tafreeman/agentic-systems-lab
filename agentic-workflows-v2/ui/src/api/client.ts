@@ -22,8 +22,8 @@ const BASE = "/api";
 
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const requestUrl =
-    typeof window !== "undefined" && url.startsWith("/")
-      ? new URL(url, window.location.origin).toString()
+    typeof globalThis.window !== "undefined" && url.startsWith("/")
+      ? new URL(url, globalThis.location.origin).toString()
       : url;
 
   const res = await fetch(requestUrl, init);
@@ -61,7 +61,7 @@ function toWorkflowEditorDocument(
     : [];
 
   const nodes: DAGNode[] = rawSteps.map((step) => ({
-    id: String(step.name ?? ""),
+    id: typeof step.name === "string" ? step.name : "",
     agent: typeof step.agent === "string" ? step.agent : null,
     description: typeof step.description === "string" ? step.description : "",
     depends_on: Array.isArray(step.depends_on)
@@ -75,7 +75,7 @@ function toWorkflowEditorDocument(
   );
 
   const steps = rawSteps.map((step) => ({
-    name: String(step.name ?? ""),
+    name: typeof step.name === "string" ? step.name : "",
     agent: typeof step.agent === "string" ? step.agent : null,
     description: typeof step.description === "string" ? step.description : null,
     tier: typeof step.tier === "string" ? step.tier : null,

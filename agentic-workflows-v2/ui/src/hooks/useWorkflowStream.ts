@@ -119,7 +119,7 @@ export function useWorkflowStream(runId: string | null): WorkflowStreamState {
           weighted_score: event.weighted_score,
           grade: event.grade,
           passed: event.passed ?? false,
-          pass_threshold: event.pass_threshold ?? 70.0,
+          pass_threshold: event.pass_threshold ?? 70,
           generated_at: event.timestamp,
         });
         setWorkflowStatus("completed");

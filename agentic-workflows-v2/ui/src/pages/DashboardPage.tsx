@@ -30,7 +30,7 @@ function statusAscii(status: string | null | undefined) {
 function shortRunId(run: RunSummary): string {
   const id = run.run_id ?? run.filename;
   const parts = id.split(/[-_/]/);
-  const last = parts[parts.length - 1] ?? id;
+  const last = parts.at(-1) ?? id;
   return last.slice(0, 10);
 }
 
@@ -55,7 +55,7 @@ function StatCard({
   values,
   sparkColor,
   empty = false,
-}: {
+}: Readonly<{
   label: string;
   value: string;
   delta?: string;
@@ -63,7 +63,7 @@ function StatCard({
   values: number[];
   sparkColor: string;
   empty?: boolean;
-}) {
+}>) {
   return (
     <BBox>
       <div className="p-[14px]">
@@ -146,7 +146,7 @@ export default function DashboardPage() {
   // Build a synthetic 14-bucket spark from recent run counts
   const sparkSeries = useMemo(() => {
     const n = 14;
-    const out = Array(n).fill(0);
+    const out = new Array(n).fill(0);
     const runsArr = runs ?? [];
     const now = Date.now();
     runsArr.forEach((r) => {
@@ -399,6 +399,10 @@ export default function DashboardPage() {
                   )}
                   {recent.map((r) => {
                     const score = r.evaluation_score ?? null;
+                    let scoreColor = "text-b-text-faint";
+                    if (score !== null) {
+                      scoreColor = score > 0.85 ? "text-b-green" : "text-b-amber";
+                    }
                     return (
                       <tr
                         key={r.filename}
@@ -432,13 +436,7 @@ export default function DashboardPage() {
                           <DurationDisplay ms={r.total_duration_ms} />
                         </td>
                         <td
-                          className={`px-3 py-2 text-right tabular-nums ${
-                            score === null
-                              ? "text-b-text-faint"
-                              : score > 0.85
-                                ? "text-b-green"
-                                : "text-b-amber"
-                          }`}
+                          className={`px-3 py-2 text-right tabular-nums ${scoreColor}`}
                         >
                           {score === null ? "—" : (score * 100).toFixed(0)}
                         </td>
