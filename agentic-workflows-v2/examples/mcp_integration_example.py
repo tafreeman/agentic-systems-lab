@@ -56,8 +56,8 @@ async def main():
             client = await manager.connect(config.name, config)
             clients.append(client)
             logger.info(f"✅ Connected to {config.name}")
-        except Exception as e:
-            logger.error(f"❌ Failed to connect to {config.name}: {e}")
+        except Exception:
+            logger.exception(f"❌ Failed to connect to {config.name}")
 
     if not clients:
         logger.error("No successful connections. Exiting.")
@@ -82,8 +82,8 @@ async def main():
             all_resources.extend(resources)
             logger.info(f"Found {len(resources)} resources from {config.name}")
 
-        except Exception as e:
-            logger.error(f"Failed to discover capabilities from {config.name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to discover capabilities from {config.name}")
 
     logger.info(f"Total: {len(all_tools)} tools, {len(all_resources)} resources")
 
@@ -121,7 +121,7 @@ async def main():
             # Check token budget
             if guard.is_oversized(result):
                 logger.warning("Output exceeds budget, saving to disk...")
-                file_path, rel_path = storage.save_text_output(
+                _, rel_path = storage.save_text_output(
                     result,
                     server_name=adapter.server_name,
                     tool_name=adapter.tool_descriptor.name,
@@ -132,8 +132,8 @@ async def main():
 
             logger.info(f"Tool result: {result[:200]}...")  # Show first 200 chars
 
-        except Exception as e:
-            logger.error(f"Tool execution failed: {e}")
+        except Exception:
+            logger.exception("Tool execution failed")
 
     # Step 6: Resource adapter example
     logger.info("Creating resource meta-tools...")
@@ -150,8 +150,8 @@ async def main():
     try:
         resources_list = await resource_adapter.list_resources()
         logger.info(f"Available resources:\n{resources_list}")
-    except Exception as e:
-        logger.error(f"Failed to list resources: {e}")
+    except Exception:
+        logger.exception("Failed to list resources")
 
     # Step 7: Cleanup
     logger.info("Closing connections...")
@@ -177,8 +177,8 @@ async def register_with_tool_registry_example():
         try:
             client = await manager.connect(config.name, config)
             mcp_clients[config.name] = client
-        except Exception as e:
-            logger.error(f"Failed to connect to {config.name}: {e}")
+        except Exception:
+            logger.exception(f"Failed to connect to {config.name}")
 
     # Discover all tools
     tool_discovery = ToolDiscovery()
