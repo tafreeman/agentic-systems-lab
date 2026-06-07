@@ -34,6 +34,11 @@ class DataSource(Enum):
     API = "api"  # REST API endpoints
 
 
+PASS_AT_1_METRIC = "pass@1"
+SWE_BENCH_PAPER_URL = "https://arxiv.org/abs/2310.06770"
+SWE_BENCH_LEADERBOARD_URL = "https://www.swebench.com/"
+
+
 @dataclass
 class BenchmarkDefinition:
     """Immutable metadata describing a single benchmark dataset.
@@ -76,7 +81,7 @@ class BenchmarkDefinition:
 
     # Evaluation info
     metrics: list[str] = field(default_factory=list)  # How results are measured
-    evaluation_method: str = "pass@1"  # Default evaluation approach
+    evaluation_method: str = PASS_AT_1_METRIC  # Default evaluation approach
 
     # Metadata
     paper_url: str | None = None  # Research paper
@@ -112,8 +117,8 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
         },
         metrics=["resolved_rate", "patch_apply_rate"],
         evaluation_method="execution",
-        paper_url="https://arxiv.org/abs/2310.06770",
-        leaderboard_url="https://www.swebench.com/",
+        paper_url=SWE_BENCH_PAPER_URL,
+        leaderboard_url=SWE_BENCH_LEADERBOARD_URL,
         license="MIT",
         citation="@article{jimenez2024swebench, title={SWE-bench: Can Language Models Resolve Real-World GitHub Issues?}}",
         languages=["python"],
@@ -132,8 +137,8 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
         },
         metrics=["resolved_rate"],
         evaluation_method="execution",
-        paper_url="https://arxiv.org/abs/2310.06770",
-        leaderboard_url="https://www.swebench.com/",
+        paper_url=SWE_BENCH_PAPER_URL,
+        leaderboard_url=SWE_BENCH_LEADERBOARD_URL,
         license="MIT",
         languages=["python"],
         tags=["github", "verified", "reliable"],
@@ -151,8 +156,8 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
         },
         metrics=["resolved_rate"],
         evaluation_method="execution",
-        paper_url="https://arxiv.org/abs/2310.06770",
-        leaderboard_url="https://www.swebench.com/",
+        paper_url=SWE_BENCH_PAPER_URL,
+        leaderboard_url=SWE_BENCH_LEADERBOARD_URL,
         license="MIT",
         languages=["python"],
         tags=["github", "lite", "fast"],
@@ -171,7 +176,7 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
         source_config={
             "split": "test",
         },
-        metrics=["pass@1", "pass@10", "pass@100"],
+        metrics=[PASS_AT_1_METRIC, "pass@10", "pass@100"],
         evaluation_method="unit_tests",
         paper_url="https://arxiv.org/abs/2107.03374",
         leaderboard_url="https://paperswithcode.com/sota/code-generation-on-humaneval",
@@ -191,7 +196,7 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
         source_config={
             "split": "test",
         },
-        metrics=["pass@1"],
+        metrics=[PASS_AT_1_METRIC],
         evaluation_method="unit_tests",
         paper_url="https://arxiv.org/abs/2305.01210",
         license="Apache-2.0",
@@ -212,7 +217,7 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
         source_config={
             "split": "test",
         },
-        metrics=["pass@1", "pass@80"],
+        metrics=[PASS_AT_1_METRIC, "pass@80"],
         evaluation_method="unit_tests",
         paper_url="https://arxiv.org/abs/2108.07732",
         leaderboard_url="https://paperswithcode.com/sota/code-generation-on-mbpp",
@@ -233,7 +238,7 @@ BENCHMARK_DEFINITIONS: dict[str, BenchmarkDefinition] = {
             "split": "test",
             "sanitized": True,
         },
-        metrics=["pass@1"],
+        metrics=[PASS_AT_1_METRIC],
         evaluation_method="unit_tests",
         paper_url="https://arxiv.org/abs/2108.07732",
         license="CC-BY-4.0",

@@ -62,7 +62,7 @@ def _noop_log(msg: str) -> None:
     """No-op logger used when no log callback is provided."""
 
 
-def probe_local(model: str, log: LogFn = None) -> ProbeResult:
+def probe_local(model: str) -> ProbeResult:
     """Probe a local ONNX model."""
     start = time.time()
     model_key = model.replace(PREFIX_LOCAL, "")
@@ -121,7 +121,7 @@ def probe_local(model: str, log: LogFn = None) -> ProbeResult:
         )
 
 
-def probe_windows_ai(model: str, log: LogFn = None) -> ProbeResult:
+def probe_windows_ai(model: str) -> ProbeResult:
     """Probe Windows AI (Phi Silica) via the .NET bridge --info."""
     start = time.time()
 
@@ -214,7 +214,7 @@ def probe_windows_ai(model: str, log: LogFn = None) -> ProbeResult:
                 f"See: https://learn.microsoft.com/windows/ai/apis/troubleshooting "
                 f"(unlock: https://aka.ms/phi-silica-unlock)"
             )
-        code, retry = classify_error(str(err_msg), r.returncode)
+        code, retry = classify_error(str(err_msg))
         return ProbeResult(
             model=model,
             provider="windows_ai",
@@ -251,7 +251,7 @@ def probe_windows_ai(model: str, log: LogFn = None) -> ProbeResult:
         )
 
 
-def probe_ollama(model: str, log: LogFn = None) -> ProbeResult:
+def probe_ollama(model: str) -> ProbeResult:
     """Probe an Ollama model."""
     import urllib.error
     import urllib.request
@@ -320,7 +320,7 @@ def probe_ollama(model: str, log: LogFn = None) -> ProbeResult:
         )
 
 
-def probe_lmstudio(model: str, log: LogFn = None) -> ProbeResult:
+def probe_lmstudio(model: str) -> ProbeResult:
     """Probe LM Studio via its OpenAI-compatible API.
 
     LM Studio serves on http://localhost:1234 by default.
@@ -385,7 +385,7 @@ def probe_local_api(model: str, log: LogFn = None) -> ProbeResult:
     )
 
 
-def probe_ai_toolkit(model: str, log: LogFn = None) -> ProbeResult:
+def probe_ai_toolkit(model: str) -> ProbeResult:
     """Probe an AI Toolkit local model.
 
     AI Toolkit stores downloaded models in ~/.aitk/models/ with metadata

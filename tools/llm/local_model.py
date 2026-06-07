@@ -372,7 +372,7 @@ Return ONLY valid JSON in this exact format:
                 result = json.loads(cleaned)
                 if isinstance(result, dict):
                     return result
-            except (json.JSONDecodeError, Exception):
+            except Exception:
                 continue
 
         # Try combining cleanups

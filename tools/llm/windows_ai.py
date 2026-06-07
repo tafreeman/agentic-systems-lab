@@ -92,9 +92,7 @@ class WindowsAIModel:
                 logger.debug("   Max tokens: %d", max_tokens)
 
             # Call Phi Silica
-            response = self._call_phi_silica(
-                full_prompt, temperature=temperature, max_tokens=max_tokens
-            )
+            response = self._call_phi_silica(full_prompt)
 
             return response
 
@@ -102,7 +100,7 @@ class WindowsAIModel:
             return f"[ERROR] Windows AI API error: {e!s}"
 
     def _call_phi_silica(
-        self, prompt: str, temperature: float = 0.7, max_tokens: int = 2000
+        self, prompt: str
     ) -> str:
         """Call Phi Silica model via C# bridge.
 
@@ -274,6 +272,6 @@ if __name__ == "__main__":
         logger.info(response)
         logger.info("=" * 60)
 
-    except Exception as e:
-        logger.error(f"Error: {e}")
+    except Exception:
+        logger.exception("Error")
         sys.exit(1)

@@ -182,9 +182,9 @@ class TestClassifyError:
         code, _ = classify_error("RATE LIMIT EXCEEDED")
         assert code == ErrorCode.RATE_LIMITED
 
-    def test_return_code_param_accepted(self):
-        """return_code is accepted but not used; ensure no error raised."""
-        code, _retry = classify_error("timeout", return_code=124)
+    def test_return_code_param_removed(self):
+        """Classify a timeout error correctly."""
+        code, _retry = classify_error("timeout")
         assert code == ErrorCode.TIMEOUT
 
 

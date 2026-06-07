@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+WHISPER_INT8_CPU_ORT = "khmyznikov--whisper-int8-cpu-ort.onnx"
+
 LOCAL_MODELS: dict[str, str] = {
     # PHI-4
     "phi4": "microsoft--Phi-4-mini-instruct-onnx",
@@ -32,10 +34,10 @@ LOCAL_MODELS: dict[str, str] = {
     "minilm-l6": "sentence-transformers--all-MiniLM-L6-v2",
     "minilm-l12": "sentence-transformers--all-MiniLM-L12-v2",
     # WHISPER
-    "whisper-tiny": "khmyznikov--whisper-int8-cpu-ort.onnx",
-    "whisper-small": "khmyznikov--whisper-int8-cpu-ort.onnx",
-    "whisper-medium": "khmyznikov--whisper-int8-cpu-ort.onnx",
-    "whisper": "khmyznikov--whisper-int8-cpu-ort.onnx",
+    "whisper-tiny": WHISPER_INT8_CPU_ORT,
+    "whisper-small": WHISPER_INT8_CPU_ORT,
+    "whisper-medium": WHISPER_INT8_CPU_ORT,
+    "whisper": WHISPER_INT8_CPU_ORT,
     # IMAGE MODELS
     "stable-diffusion": "CompVis--stable-diffusion-v1-4",
     "esrgan": "microsoft--dml-ai-hub-models",

@@ -189,7 +189,7 @@ class ToolInit:
     """
 
     name: str
-    log_file: Path = None
+    log_file: Path | None = None
     verbose: bool = False
 
     # Internal state

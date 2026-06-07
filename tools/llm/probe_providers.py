@@ -106,27 +106,27 @@ def probe_model(model: str, log: LogFn = None) -> ProbeResult:
     provider = get_provider(model)
 
     if provider == "local":
-        return probe_local(model, log)
+        return probe_local(model)
     elif provider == "windows_ai":
-        return probe_windows_ai(model, log)
+        return probe_windows_ai(model)
     elif provider == "github":
-        return probe_github(model, log)
+        return probe_github(model)
     elif provider == "azure_foundry":
-        return probe_azure_foundry(model, log)
+        return probe_azure_foundry(model)
     elif provider == "azure_openai":
-        return probe_azure_openai(model, log)
+        return probe_azure_openai(model)
     elif provider == "ollama":
-        return probe_ollama(model, log)
+        return probe_ollama(model)
     elif provider == "openai":
-        return probe_openai(model, log)
+        return probe_openai(model)
     elif provider == "gemini":
-        return probe_gemini(model, log)
+        return probe_gemini(model)
     elif provider == "claude":
-        return probe_claude(model, log)
+        return probe_claude(model)
     elif provider == "ai_toolkit":
-        return probe_ai_toolkit(model, log)
+        return probe_ai_toolkit(model)
     elif provider == "lmstudio":
-        return probe_lmstudio(model, log)
+        return probe_lmstudio(model)
     elif provider == "local_api":
         return probe_local_api(model, log)
     else:

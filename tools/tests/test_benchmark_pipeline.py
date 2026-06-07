@@ -202,7 +202,7 @@ class TestPrintMismatchAnalysis:
         from tools.agents.benchmarks.evaluation_pipeline import print_mismatch_analysis
 
         eval_result: dict[str, Any] = {}
-        print_mismatch_analysis(eval_result, {}, "output")
+        print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "All gold standard criteria met" in captured.out
 
@@ -211,7 +211,7 @@ class TestPrintMismatchAnalysis:
         from tools.agents.benchmarks.evaluation_pipeline import print_mismatch_analysis
 
         eval_result = {"components": {"missing": ["auth module", "database layer"]}}
-        print_mismatch_analysis(eval_result, {}, "some output text")
+        print_mismatch_analysis(eval_result, "some output text")
         captured = capsys.readouterr()
         assert "MISSING COMPONENTS" in captured.out
         assert "auth module" in captured.out
@@ -221,7 +221,7 @@ class TestPrintMismatchAnalysis:
         from tools.agents.benchmarks.evaluation_pipeline import print_mismatch_analysis
 
         eval_result = {"patterns": {"missing": [r"def \w+\("]}}
-        print_mismatch_analysis(eval_result, {}, "output")
+        print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "MISSING PATTERNS" in captured.out
 

@@ -34,6 +34,8 @@ logger = logging.getLogger(__name__)
 # AI Gallery cache path
 AI_GALLERY_PATH = Path.home() / ".cache" / "aigallery"
 
+VERBOSE_OUTPUT_HELP = "Verbose output"
+
 
 # =============================================================================
 # IMAGE GENERATION (Stable Diffusion)
@@ -102,7 +104,7 @@ def generate_image(
     # Set seed for reproducibility
     generator = None
     if seed is not None:
-        generator = np.random.RandomState(seed)
+        generator = np.random.default_rng(seed)
 
     if verbose:
         logger.debug("Generating image for: %s...", prompt[:50])
@@ -284,7 +286,6 @@ def transcribe_audio(
 def upscale_image(
     input_path: str,
     output_path: str | None = None,
-    scale: int = 4,
     model_path: str | None = None,
     verbose: bool = False,
 ) -> str:
@@ -293,7 +294,6 @@ def upscale_image(
     Args:
         input_path: Path to input image
         output_path: Path for output image (default: input_upscaled.png)
-        scale: Upscale factor (4x is typical)
         model_path: Override model path
         verbose: Print progress
 
@@ -405,7 +405,7 @@ Examples:
     img_parser.add_argument("--steps", type=int, default=50, help="Inference steps")
     img_parser.add_argument("--seed", type=int, help="Random seed")
     img_parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Verbose output"
+        "-v", "--verbose", action="store_true", help=VERBOSE_OUTPUT_HELP
     )
 
     # Transcription
@@ -420,7 +420,7 @@ Examples:
     )
     trans_parser.add_argument("--language", help="Language code (e.g., en, es)")
     trans_parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Verbose output"
+        "-v", "--verbose", action="store_true", help=VERBOSE_OUTPUT_HELP
     )
 
     # Upscaling
@@ -428,7 +428,7 @@ Examples:
     up_parser.add_argument("image", help="Input image path")
     up_parser.add_argument("-o", "--output", help="Output file path")
     up_parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Verbose output"
+        "-v", "--verbose", action="store_true", help=VERBOSE_OUTPUT_HELP
     )
 
     args = parser.parse_args()

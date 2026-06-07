@@ -191,7 +191,7 @@ def _parse_json_from_text(text: str) -> dict[str, Any] | None:
     except Exception:
         pass
 
-    fenced = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", raw, re.DOTALL)
+    fenced = re.findall(r"```(?:json)?\s*(\{[^}]*\})\s*```", raw, re.DOTALL)
     for candidate in fenced:
         try:
             parsed = json.loads(candidate)

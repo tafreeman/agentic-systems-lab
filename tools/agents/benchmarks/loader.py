@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from .datasets import BENCHMARK_DEFINITIONS, BenchmarkDefinition, DataSource
-from .registry import BenchmarkConfig
+
 
 logger = logging.getLogger(__name__)
 
@@ -219,8 +219,8 @@ def _load_from_huggingface(
 
         return tasks
 
-    except Exception as e:
-        logger.error("Failed to load from HuggingFace: %s", e)
+    except Exception:
+        logger.exception("Failed to load from HuggingFace")
         return []
 
 
@@ -352,8 +352,8 @@ def _load_from_github(
 
         return tasks
 
-    except Exception as e:
-        logger.error("Failed to load from GitHub: %s", e)
+    except Exception:
+        logger.exception("Failed to load from GitHub")
         return []
 
 
@@ -419,8 +419,8 @@ def _load_from_local(
             )
             tasks.append(task)
 
-        except Exception as e:
-            logger.error("Error loading %s: %s", file_path, e)
+        except Exception:
+            logger.exception("Error loading %s", file_path)
 
     return tasks
 
@@ -436,7 +436,6 @@ def load_benchmark(
     offset: int = 0,
     use_cache: bool = True,
     cache_ttl_hours: int = 24,
-    config: BenchmarkConfig | None = None,
 ) -> list[BenchmarkTask]:
     """Load tasks from a benchmark.
 
@@ -446,7 +445,6 @@ def load_benchmark(
         offset: Starting offset
         use_cache: Whether to use cached data
         cache_ttl_hours: Cache expiry time
-        config: Optional full configuration
 
     Returns:
         List of BenchmarkTask objects

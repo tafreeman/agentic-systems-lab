@@ -172,7 +172,7 @@ def evaluate_task_output_legacy(
 
     if verbose:
         print_gold_standard_report(eval_result, verbose=True)
-        print_mismatch_analysis(eval_result, gold_data, output)
+        print_mismatch_analysis(eval_result, output)
     else:
         score = eval_result.get("overall_score", 0)
         grade = eval_result.get("grade", "N/A")
@@ -188,7 +188,6 @@ def evaluate_task_output_legacy(
 
 def print_mismatch_analysis(
     eval_result: dict[str, Any],
-    gold_data: dict[str, Any],
     output: str,
 ) -> None:
     """Print a detailed analysis of why items did not match the gold standard."""

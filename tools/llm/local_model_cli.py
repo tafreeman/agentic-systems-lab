@@ -69,8 +69,8 @@ def main() -> None:
             content = prompt_path.read_text(encoding="utf-8")
             result = model.evaluate_prompt(content)
             logger.info(json.dumps(result, indent=2))
-        except Exception as e:
-            logger.error(f"Error: {e}")
+        except Exception:
+            logger.exception("Error")
             sys.exit(1)
 
         sys.exit(0)

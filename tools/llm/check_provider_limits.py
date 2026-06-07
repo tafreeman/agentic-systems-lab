@@ -169,8 +169,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with open(args.probe_file, encoding="utf-8") as f:
             probe = json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load probe file: {e}")
+    except Exception:
+        logger.exception("Failed to load probe file")
         return 2
 
     out: dict[str, Any] = {"checked": {}, "probe_summary": probe.get("summary")}

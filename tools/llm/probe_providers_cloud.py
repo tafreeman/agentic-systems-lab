@@ -48,8 +48,10 @@ from tools.llm.probe_config import (
 # Type alias for optional logging callback
 LogFn = Callable[[str], None] | None
 
+ACCEPT_JSON = "application/json"
 
-def probe_github(model: str, log: LogFn = None) -> ProbeResult:
+
+def probe_github(model: str) -> ProbeResult:
     """Probe a GitHub Models model with a lightweight test."""
     start = time.time()
     model_id = model.replace(PREFIX_GITHUB, "").replace(PREFIX_GITHUB_ALT, "")
@@ -145,7 +147,7 @@ def probe_github(model: str, log: LogFn = None) -> ProbeResult:
             )
         else:
             error_text = result.stderr or result.stdout
-            code, retry = classify_error(error_text, result.returncode)
+            code, retry = classify_error(error_text)
             return ProbeResult(
                 model=model,
                 provider="github",
@@ -182,7 +184,7 @@ def probe_github(model: str, log: LogFn = None) -> ProbeResult:
         )
 
 
-def probe_azure_foundry(model: str, log: LogFn = None) -> ProbeResult:
+def probe_azure_foundry(model: str) -> ProbeResult:
     """Probe an Azure Foundry model."""
     start = time.time()
     _ = model.replace(PREFIX_AZURE_FOUNDRY, "")
@@ -228,7 +230,7 @@ def probe_azure_foundry(model: str, log: LogFn = None) -> ProbeResult:
     )
 
 
-def probe_azure_openai(model: str, log: LogFn = None) -> ProbeResult:
+def probe_azure_openai(model: str) -> ProbeResult:
     """Probe an Azure OpenAI model."""
     start = time.time()
     _ = model.replace(PREFIX_AZURE_OPENAI, "")
@@ -267,7 +269,7 @@ def probe_azure_openai(model: str, log: LogFn = None) -> ProbeResult:
     )
 
 
-def probe_openai(model: str, log: LogFn = None) -> ProbeResult:
+def probe_openai(model: str) -> ProbeResult:
     """Probe an OpenAI model."""
     start = time.time()
     _ = model.replace(PREFIX_OPENAI, "")
@@ -293,7 +295,7 @@ def probe_openai(model: str, log: LogFn = None) -> ProbeResult:
     )
 
 
-def probe_gemini(model: str, log: LogFn = None) -> ProbeResult:
+def probe_gemini(model: str) -> ProbeResult:
     """Probe a Google Gemini model.
 
     Checks for GEMINI_API_KEY or GOOGLE_API_KEY, then optionally hits
@@ -320,7 +322,7 @@ def probe_gemini(model: str, log: LogFn = None) -> ProbeResult:
     try:
         url = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1"
         req = urllib.request.Request(
-            url, headers={"Accept": "application/json", "x-goog-api-key": api_key}
+            url, headers={"Accept": ACCEPT_JSON, "x-goog-api-key": api_key}
         )
         with urllib.request.urlopen(req, timeout=TIMEOUT_CLOUD_HTTP) as resp:
             data = json.loads(resp.read().decode("utf-8"))
@@ -371,7 +373,7 @@ def probe_gemini(model: str, log: LogFn = None) -> ProbeResult:
         )
 
 
-def probe_claude(model: str, log: LogFn = None) -> ProbeResult:
+def probe_claude(model: str) -> ProbeResult:
     """Probe an Anthropic Claude model.
 
     Checks for ANTHROPIC_API_KEY, then hits the Anthropic models
@@ -402,7 +404,7 @@ def probe_claude(model: str, log: LogFn = None) -> ProbeResult:
             headers={
                 "x-api-key": api_key,
                 "anthropic-version": "2023-06-01",
-                "Accept": "application/json",
+                "Accept": ACCEPT_JSON,
             },
         )
         with urllib.request.urlopen(req, timeout=TIMEOUT_CLOUD_HTTP) as resp:
@@ -468,7 +470,7 @@ def probe_openai_compatible_endpoint(
 
     try:
         url = f"{base}/v1/models"
-        req = urllib.request.Request(url, headers={"Accept": "application/json"})
+        req = urllib.request.Request(url, headers={"Accept": ACCEPT_JSON})
         with urllib.request.urlopen(req, timeout=TIMEOUT_OLLAMA_HTTP) as resp:
             raw = resp.read()
             # Verify the response is a valid OpenAI-compatible model list

@@ -511,7 +511,7 @@ class TestEvaluateTaskOutputLegacy:
                 _make_task("1"), "output text", verbose=True
             )
 
-        mock_mismatch.assert_called_once_with(eval_dict, gold, "output text")
+        mock_mismatch.assert_called_once_with(eval_dict, "output text")
 
     @pytest.mark.parametrize(
         "task_id, tt_id",
@@ -558,7 +558,7 @@ class TestPrintMismatchAnalysis:
             "endpoints": {"missing": []},
             "tables": {"missing": []},
         }
-        pipeline.print_mismatch_analysis(eval_result, {}, "output")
+        pipeline.print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "All gold standard criteria met" in captured.out
 
@@ -572,7 +572,7 @@ class TestPrintMismatchAnalysis:
             "tables": {"missing": []},
         }
         output = "We built an authentication layer\nand a database layer"
-        pipeline.print_mismatch_analysis(eval_result, {}, output)
+        pipeline.print_mismatch_analysis(eval_result, output)
         captured = capsys.readouterr()
         assert "MISSING COMPONENTS" in captured.out
         assert "authentication module" in captured.out
@@ -588,7 +588,7 @@ class TestPrintMismatchAnalysis:
             "endpoints": {"missing": []},
             "tables": {"missing": []},
         }
-        pipeline.print_mismatch_analysis(eval_result, {}, "output")
+        pipeline.print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "MISSING PATTERNS" in captured.out
         assert r"class \w+Repository" in captured.out
@@ -602,7 +602,7 @@ class TestPrintMismatchAnalysis:
             "endpoints": {"missing": []},
             "tables": {"missing": []},
         }
-        pipeline.print_mismatch_analysis(eval_result, {}, "output")
+        pipeline.print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "MISSING KEY DECISIONS" in captured.out
         assert "PostgreSQL" in captured.out
@@ -616,7 +616,7 @@ class TestPrintMismatchAnalysis:
             "endpoints": {"missing": ["POST /api/users"]},
             "tables": {"missing": []},
         }
-        pipeline.print_mismatch_analysis(eval_result, {}, "output")
+        pipeline.print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "MISSING API ENDPOINTS" in captured.out
         assert "POST /api/users" in captured.out
@@ -630,7 +630,7 @@ class TestPrintMismatchAnalysis:
             "endpoints": {"missing": []},
             "tables": {"missing": ["users", "sessions"]},
         }
-        pipeline.print_mismatch_analysis(eval_result, {}, "output")
+        pipeline.print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "MISSING DATABASE TABLES" in captured.out
         assert "users" in captured.out
@@ -645,13 +645,13 @@ class TestPrintMismatchAnalysis:
             "endpoints": {"missing": []},
             "tables": {"missing": []},
         }
-        pipeline.print_mismatch_analysis(eval_result, {}, "output")
+        pipeline.print_mismatch_analysis(eval_result, "output")
         captured = capsys.readouterr()
         assert "TIP:" in captured.out
 
     def test_handles_empty_eval_result_gracefully(self, capsys):
         """Empty eval_result (no category keys) produces 'all met' message."""
-        pipeline.print_mismatch_analysis({}, {}, "output")
+        pipeline.print_mismatch_analysis({}, "output")
         captured = capsys.readouterr()
         assert "All gold standard criteria met" in captured.out
 

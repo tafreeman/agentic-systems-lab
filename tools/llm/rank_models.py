@@ -43,8 +43,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with open(PROBE_FILE, encoding="utf-8") as f:
             probe = json.load(f)
-    except Exception as e:
-        logger.error(f"Error loading {PROBE_FILE}: {e}")
+    except Exception:
+        logger.exception(f"Error loading {PROBE_FILE}")
         return 2
 
     try:

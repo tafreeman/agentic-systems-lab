@@ -21,5 +21,5 @@ try:
             logger.info(f"- {m}")
     else:
         logger.info("No Gemini models found. Check GEMINI_API_KEY env var.")
-except Exception as e:
-    logger.error(f"Error listing models: {e}")
+except Exception:
+    logger.exception("Error listing models")

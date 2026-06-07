@@ -405,11 +405,11 @@ Examples:
     try:
         # Handle info commands
         if args.list:
-            cmd_list_benchmarks(args)
+            cmd_list_benchmarks()
             return
 
         if args.presets:
-            cmd_list_presets(args)
+            cmd_list_presets()
             return
 
         if args.info:
@@ -422,11 +422,11 @@ Examples:
             return
 
         if args.list_models:
-            cmd_list_models(args)
+            cmd_list_models()
             return
 
         if args.discover:
-            cmd_discover_models(args)
+            cmd_discover_models()
             return
 
         # Handle preset
