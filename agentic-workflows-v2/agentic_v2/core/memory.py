@@ -115,6 +115,7 @@ class _MemoryEntry:
     value: Any
     metadata: dict[str, Any]
     timestamp: float
+    seq: int
 
 
 class InMemoryStore:
@@ -133,6 +134,7 @@ class InMemoryStore:
 
     def __init__(self) -> None:
         self._entries: dict[str, _MemoryEntry] = {}
+        self._seq = 0
 
     async def store(
         self,
@@ -150,10 +152,12 @@ class InMemoryStore:
             value: The value to store.
             metadata: Optional key-value metadata.
         """
+        self._seq += 1
         self._entries[key] = _MemoryEntry(
             value=value,
             metadata=metadata if metadata is not None else {},
             timestamp=time.time(),
+            seq=self._seq,
         )
         logger.debug("Stored memory entry: key=%s", key)
 
@@ -195,8 +199,12 @@ class InMemoryStore:
             if query_lower in value_str:
                 matches.append((key, entry))
 
-        # Sort by timestamp descending (newest first)
-        matches.sort(key=lambda pair: pair[1].timestamp, reverse=True)
+        # Sort by timestamp descending (newest first), using insertion
+        # sequence as a stable tiebreaker so entries sharing a timestamp
+        # (same time.time() tick) still order newest-stored first.
+        matches.sort(
+            key=lambda pair: (pair[1].timestamp, pair[1].seq), reverse=True
+        )
 
         results: list[dict[str, Any]] = []
         for key, entry in matches[:top_k]:

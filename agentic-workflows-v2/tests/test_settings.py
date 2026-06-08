@@ -9,6 +9,10 @@ def test_settings_defaults_load_without_env(monkeypatch):
     monkeypatch.delenv("AGENTIC_TRACING", raising=False)
     monkeypatch.delenv("AGENTIC_FILE_BASE_DIR", raising=False)
     monkeypatch.delenv("AGENTIC_BLOCK_PRIVATE_IPS", raising=False)
+    # `shell` maps to the SHELL env var (no env_prefix); clear it so the test
+    # exercises the field default rather than the host shell (e.g. Git Bash on
+    # Windows resolves SHELL to C:\Program Files\Git\usr\bin\bash.exe).
+    monkeypatch.delenv("SHELL", raising=False)
 
     from agentic_v2.settings import Settings
 

@@ -168,7 +168,7 @@ class RAGTracer:
 
         Yields a single-element ``list[int]`` accumulator.  The caller
         records the result count by writing ``result_count[0] = N``.
-        Tracks latency via ``time.monotonic()``.  On exception, the
+        Tracks latency via ``time.perf_counter()``.  On exception, the
         complete event includes the error message, and the exception
         is re-raised.
 
@@ -180,7 +180,7 @@ class RAGTracer:
         """
         self.emit_query_start(query=query)
         result_count: QueryResultCount = [0]
-        start = time.monotonic()
+        start = time.perf_counter()
         error_msg: str | None = None
         try:
             yield result_count
@@ -188,7 +188,7 @@ class RAGTracer:
             error_msg = str(exc)
             raise
         finally:
-            elapsed_ms = (time.monotonic() - start) * 1000.0
+            elapsed_ms = (time.perf_counter() - start) * 1000.0
             self.emit_query_complete(
                 total_latency_ms=elapsed_ms,
                 result_count=result_count[0],
@@ -211,11 +211,11 @@ class RAGTracer:
         """
         self.emit_ingest_start(source=source)
         chunk_count: IngestChunkCount = [0]
-        start = time.monotonic()
+        start = time.perf_counter()
         try:
             yield chunk_count
         finally:
-            elapsed_ms = (time.monotonic() - start) * 1000.0
+            elapsed_ms = (time.perf_counter() - start) * 1000.0
             self.emit_ingest_complete(
                 source=source,
                 chunk_count=chunk_count[0],
