@@ -49,10 +49,10 @@ langchain = [
     "langchain-core>=0.3,<0.4",
     "langgraph>=0.2,<0.3",
     "langchain>=0.3,<0.4",
-    "langchain-openai>=0.2,<0.3",
-    "langchain-anthropic>=0.2,<0.3",
+    "langchain-openai>=0.2,<0.4",
+    "langchain-anthropic>=0.2,<0.4",
     "langchain-google-genai>=2.0,<3",
-    "langchain-ollama>=0.2,<0.3",
+    "langchain-ollama>=0.2,<0.4",
     "langgraph-checkpoint-sqlite>=2.0,<3",
     "langsmith>=0.1.0,<0.4",
 ]
@@ -67,7 +67,7 @@ claude = [
 ]
 rag = [
     "lancedb>=0.15,<1",
-    "litellm>=1.50,<2",
+    "litellm>=1.83.7,<2",
 ]
 devex = [
     "psutil>=6.0",
