@@ -283,10 +283,16 @@ agentic-workflows/
 │
 ├── agentic-v2-eval/               # Evaluation framework package
 │   ├── src/agentic_v2_eval/
-│   │   ├── datasets/              # Dataset adapters (SWE-bench, etc.)
+│   │   ├── adapters/              # Dataset adapters (SWE-bench, etc.)
 │   │   ├── evaluators/            # Rubric-based evaluators
-│   │   ├── reporters/             # Result reporting
-│   │   └── scoring/               # Scoring utilities
+│   │   ├── metrics/               # Accuracy, performance, quality metrics
+│   │   ├── reporters/             # Result reporting (JSON, HTML, Markdown)
+│   │   ├── rubrics/               # YAML rubric definitions
+│   │   ├── runners/               # Batch and streaming run orchestration
+│   │   ├── sandbox/               # Sandboxed execution environments
+│   │   ├── datasets.py            # Dataset loading utilities
+│   │   ├── scorer.py              # Core scoring logic
+│   │   └── interfaces.py          # Shared type interfaces
 │   └── tests/
 │
 ├── tools/                         # Shared utilities
@@ -474,7 +480,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for monorepo-wide contribution guidelines
 
 ## Security
 
-See [SECURITY.md](agentic-workflows-v2/SECURITY.md) for vulnerability reporting procedures.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting procedures.
 
 ## License
 

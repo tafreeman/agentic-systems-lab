@@ -6,7 +6,7 @@ version: "1.0.0"
 providers:
   local_onnx:
     description: Local ONNX models via onnxruntime-genai
-    base_path: "${AIGALLERY_CACHE:-C:\\Users\\tandf\\.cache\\aigallery}"
+    base_path: "${AIGALLERY_CACHE:-~/.cache/aigallery}"
     available:
       - id: "local:phi4"
         name: Phi-4
