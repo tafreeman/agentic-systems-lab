@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 from datetime import timezone
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 from ..contracts import StepResult
 from .context import ExecutionContext
@@ -239,7 +239,10 @@ class ExpressionEvaluator:
         # step data (stored by StepExecutor as ctx["steps"]).  This allows
         # when-conditions like ${steps.review_code.outputs.review_report.approved}
         # to resolve even when the evaluator has no step_results param.
-        step_views = self._build_step_views()
+        step_views = cast(
+            dict[str, StepResultView | dict[str, Any]],
+            self._build_step_views(),
+        )
         ctx_steps = all_vars.get("steps")
         if isinstance(ctx_steps, dict):
             for name, data in ctx_steps.items():

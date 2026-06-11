@@ -7,7 +7,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, TypeVar
 
 if TYPE_CHECKING:
     from ..contracts.verification import VerificationPolicy
@@ -73,7 +73,7 @@ class RetryConfig:
 
 
 # Type for step functions
-StepFunction = Callable[[ExecutionContext], Awaitable[dict[str, Any]]]
+StepFunction = Callable[[ExecutionContext], Coroutine[Any, Any, dict[str, Any]]]
 HookFunction = Callable[[ExecutionContext, "StepDefinition"], Awaitable[None]]
 ConditionFunction = Callable[[ExecutionContext], bool]
 
@@ -222,7 +222,7 @@ def step(
 class StepExecutor:
     """Executes StepDefinition instances with full lifecycle management."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._running_tasks: dict[str, asyncio.Task] = {}
 
     async def execute(
@@ -464,7 +464,7 @@ class StepExecutor:
         step_name: str,
     ) -> dict[str, Any]:
         """Execute func with optional timeout and task tracking."""
-        task = asyncio.create_task(func(ctx))
+        task: asyncio.Task[dict[str, Any]] = asyncio.create_task(func(ctx))
         self._running_tasks[step_name] = task
 
         try:

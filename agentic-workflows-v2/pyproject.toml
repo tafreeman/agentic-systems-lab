@@ -39,6 +39,7 @@ dev = [
     "websockets>=12,<16",
     "black>=23.0",
     "ruff>=0.1.0",
+    "mypy>=1.19",
 ]
 server = [
     "fastapi>=0.100,<1",
@@ -329,3 +330,9 @@ module = [
     "agentic_v2.langchain.dependencies",
 ]
 ignore_errors = true
+
+# Strict typing enabled incrementally for the core engine and contracts modules.
+[[tool.mypy.overrides]]
+module = ["agentic_v2.engine.*", "agentic_v2.contracts.*"]
+disallow_untyped_defs = true
+warn_return_any = true

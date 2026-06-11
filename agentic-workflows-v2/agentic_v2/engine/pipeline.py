@@ -21,7 +21,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, Coroutine
 
 from ..contracts import StepResult, StepStatus, WorkflowResult
 from .context import ExecutionContext
@@ -55,7 +55,7 @@ class ParallelGroup:
     fail_fast: bool = True  # Stop on first failure
     max_concurrency: int | None = None  # Limit parallel execution
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.steps:
             raise ValueError("ParallelGroup must have at least one step")
 
@@ -180,7 +180,7 @@ class PipelineExecutor:
     cancellation, and external cancellation via :meth:`cancel`.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._step_executor = StepExecutor()
         self._status = PipelineStatus.PENDING
         self._cancelled = False
@@ -316,17 +316,18 @@ class PipelineExecutor:
                 async with semaphore:
                     return await self._step_executor.execute(step, ctx)
 
-            tasks = [run_with_semaphore(step) for step in group.steps]
+            tasks: list[Coroutine[Any, Any, StepResult]] = [
+                run_with_semaphore(step) for step in group.steps
+            ]
         else:
             # Unlimited concurrency
             tasks = [self._step_executor.execute(step, ctx) for step in group.steps]
 
         if group.fail_fast:
             # Return on first failure
-            results = []
-            pending = {
-                asyncio.create_task(t) if not isinstance(t, asyncio.Task) else t
-                for t in tasks
+            results: list[StepResult] = []
+            pending: set[asyncio.Task[StepResult]] = {
+                asyncio.create_task(task) for task in tasks
             }
 
             while pending:
@@ -347,7 +348,7 @@ class PipelineExecutor:
             return results
         else:
             # Wait for all
-            return await asyncio.gather(*tasks)
+            return list(await asyncio.gather(*tasks))
 
     async def _execute_branch(
         self, branch: ConditionalBranch, ctx: ExecutionContext
@@ -357,7 +358,7 @@ class PipelineExecutor:
         condition_result = branch.condition(ctx)
         steps_to_run = branch.then_steps if condition_result else branch.else_steps
 
-        results = []
+        results: list[StepResult] = []
         for element in steps_to_run:
             element_results = await self._execute_element(element, ctx)
             results.extend(element_results)
@@ -398,7 +399,7 @@ class PipelineBuilder:
         )
     """
 
-    def __init__(self, name: str, description: str = ""):
+    def __init__(self, name: str, description: str = "") -> None:
         self._pipeline = Pipeline(name=name, description=description)
 
     def step(self, step_def: StepDefinition) -> "PipelineBuilder":

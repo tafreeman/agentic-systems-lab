@@ -30,7 +30,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, cast
 
 logger = logging.getLogger(__name__)
 
@@ -77,11 +77,11 @@ class ServiceContainer:
         Checks singletons first, then tries factory.
         """
         if service_type in self._singletons:
-            return self._singletons[service_type]
+            return cast(T, self._singletons[service_type])
 
         if service_type in self._factories:
             instance = self._factories[service_type]()
-            return instance
+            return cast(T, instance)
 
         return None
 
@@ -406,7 +406,7 @@ class ExecutionContext:
                 return {"__type__": "path", "value": str(obj)}
             return str(obj)
 
-        return serialize(self._variables)
+        return cast(dict[str, Any], serialize(self._variables))
 
     # -------------------------------------------------------------------------
     # Utilities
