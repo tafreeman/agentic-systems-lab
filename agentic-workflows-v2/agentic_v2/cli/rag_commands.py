@@ -59,10 +59,10 @@ def rag_ingest(
         console.print(f"[green]Ingested {chunk_count} chunks[/green] from {source}")
     except FileNotFoundError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @rag_group.command("search")

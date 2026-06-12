@@ -22,13 +22,16 @@ from fastapi.responses import StreamingResponse
 from ...models.secrets import get_secret
 from ...utils.path_safety import is_within_base
 
-# LangChain imports — optional at the package level.
-try:
-    from ...langchain import load_workflow_config
+# LangChain imports are deferred to avoid triggering the DeprecationWarning
+# from agentic_v2/langchain/__init__.py on server startup.
+def _try_load_workflow_config(workflow_name: str) -> Any:
+    """Import and call load_workflow_config lazily; return None on ImportError."""
+    try:
+        from ...langchain import load_workflow_config
 
-    _LANGCHAIN_AVAILABLE = True
-except ImportError:
-    _LANGCHAIN_AVAILABLE = False
+        return load_workflow_config(workflow_name)
+    except ImportError:
+        return None
 from ...workflows.run_logger import RunLogger
 from .. import websocket
 from ..models import RunsSummaryResponse, RunSummaryModel, RunEvaluationDetailResponse, RunEvaluationDetail
@@ -121,41 +124,42 @@ async def get_run(filename: str):
     # Best-effort retroactive model identification
     # If model_used is missing in the run log, try to infer it from current workflow config
     workflow_name = run_data.get("workflow_name")
-    if workflow_name and _LANGCHAIN_AVAILABLE:
+    if workflow_name:
         try:
-            config = load_workflow_config(workflow_name)
-            steps_cfg = {s.name: s for s in config.steps}
+            config = _try_load_workflow_config(workflow_name)
+            if config is not None:
+                steps_cfg = {s.name: s for s in config.steps}
 
-            for step in run_data.get("steps", []):
-                # Skip if we already have a model
-                if step.get("model_used"):
-                    continue
+                for step in run_data.get("steps", []):
+                    # Skip if we already have a model
+                    if step.get("model_used"):
+                        continue
 
-                # Skip tier 0 (no model)
-                if step.get("tier") == 0:
-                    continue
+                    # Skip tier 0 (no model)
+                    if step.get("tier") == 0:
+                        continue
 
-                s_name = step.get("step_name")
-                if s_name in steps_cfg:
-                    step_cfg = steps_cfg[s_name]
+                    s_name = step.get("step_name")
+                    if s_name in steps_cfg:
+                        step_cfg = steps_cfg[s_name]
 
-                    # 1. Check specific model override
-                    if step_cfg.model_override:
-                        val = step_cfg.model_override
-                        # Handle "env:VAR|fallback"
-                        if val.startswith("env:"):
-                            parts = val.split("|", 1)
-                            if len(parts) > 1:
-                                env_key = parts[0][4:]
-                                val = get_secret(env_key, default=parts[1])
-                            else:
-                                env_key = val[4:]
-                                val = get_secret(env_key, default=val)
+                        # 1. Check specific model override
+                        if step_cfg.model_override:
+                            val = step_cfg.model_override
+                            # Handle "env:VAR|fallback"
+                            if val.startswith("env:"):
+                                parts = val.split("|", 1)
+                                if len(parts) > 1:
+                                    env_key = parts[0][4:]
+                                    val = get_secret(env_key, default=parts[1])
+                                else:
+                                    env_key = val[4:]
+                                    val = get_secret(env_key, default=val)
 
-                        step["model_used"] = val
-                        # Mark as inferred (optional, maybe distinct UI style?)
-                        step["metadata"] = step.get("metadata", {})
-                        step["metadata"]["model_inferred"] = True
+                            step["model_used"] = val
+                            # Mark as inferred (optional, maybe distinct UI style?)
+                            step["metadata"] = step.get("metadata", {})
+                            step["metadata"]["model_inferred"] = True
         except Exception as exc:
             # Workflow definition might have changed or been deleted; ignore errors
             # but log at debug level for operational diagnostics

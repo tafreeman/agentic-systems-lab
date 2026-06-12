@@ -121,4 +121,4 @@ def validate_event(payload: dict[str, Any]) -> ExecutionEvent:
 
     Raises pydantic.ValidationError (a ValueError subclass) on mismatch.
     """
-    return cast(ExecutionEvent, _adapter.validate_python(payload))
+    return cast("ExecutionEvent", _adapter.validate_python(payload))

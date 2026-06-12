@@ -188,7 +188,7 @@ class WorkflowLoader:
             with open(path, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as e:
-            raise WorkflowLoadError(f"Invalid YAML in {path}: {e}")
+            raise WorkflowLoadError(f"Invalid YAML in {path}: {e}") from e
 
         if not isinstance(data, dict):
             raise WorkflowLoadError(f"Workflow must be a YAML mapping: {path}")

@@ -245,7 +245,6 @@ ignore = [
     "UP042",   # replace-str-enum (20 hits)
     "E402",    # module-import-not-at-top-of-file (16 hits)
     "TC003",   # typing-only-standard-library-import (12 hits)
-    "B904",    # raise-without-from-inside-except (11 hits)
     "S110",    # try-except-pass (10 hits) — review each for intent
     "S112",    # try-except-continue (9 hits) — review each for intent
     "SIM105",  # suppressible-exception (8 hits)
@@ -260,12 +259,10 @@ ignore = [
     "RUF012",  # mutable-class-default (3 hits)
     "TC002",   # typing-only-third-party-import (3 hits)
     "C408",    # unnecessary-collection-call (2 hits)
-    "S307",    # suspicious-eval-usage (2 hits) — audit sites separately
     "SIM102",  # collapsible-if (2 hits)
     "C401",    # unnecessary-generator-set (1 hit)
     "N812",    # lowercase-imported-as-non-lowercase (1 hit)
     "RUF005",  # collection-literal-concatenation (1 hit)
-    "RUF006",  # asyncio-dangling-task (1 hit) — review for potential bug
     "SIM101",  # duplicate-isinstance-call (1 hit)
 
     # -------------------------------------------------------------------------
