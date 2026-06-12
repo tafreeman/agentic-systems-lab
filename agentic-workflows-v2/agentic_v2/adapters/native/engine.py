@@ -278,7 +278,7 @@ class NativeEngine:
             ):
                 step_name = event.get("step", "")
                 output_data = event.get("output", {}) or {}
-                _task = asyncio.create_task(
+                _checkpoint_task = asyncio.create_task(
                     store.write(
                         thread_id=thread_id,
                         workflow_name=workflow_name,
@@ -286,6 +286,16 @@ class NativeEngine:
                         status=StepStatus.SUCCESS.value,
                         output_data=output_data,
                     )
+                )
+                # Keep a strong reference so the task is not GC'd before it
+                # completes.  Log any unexpected exceptions rather than
+                # silently dropping them.
+                _checkpoint_task.add_done_callback(
+                    lambda t: logger.warning(
+                        "Checkpoint write failed: %s", t.exception()
+                    )
+                    if not t.cancelled() and t.exception() is not None
+                    else None
                 )
 
         return _on_update

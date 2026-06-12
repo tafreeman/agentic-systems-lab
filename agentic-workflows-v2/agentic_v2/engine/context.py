@@ -77,11 +77,11 @@ class ServiceContainer:
         Checks singletons first, then tries factory.
         """
         if service_type in self._singletons:
-            return cast(T, self._singletons[service_type])
+            return cast("T", self._singletons[service_type])
 
         if service_type in self._factories:
             instance = self._factories[service_type]()
-            return cast(T, instance)
+            return cast("T", instance)
 
         return None
 
@@ -406,7 +406,7 @@ class ExecutionContext:
                 return {"__type__": "path", "value": str(obj)}
             return str(obj)
 
-        return cast(dict[str, Any], serialize(self._variables))
+        return cast("dict[str, Any]", serialize(self._variables))
 
     # -------------------------------------------------------------------------
     # Utilities

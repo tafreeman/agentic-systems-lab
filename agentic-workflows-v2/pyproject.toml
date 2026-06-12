@@ -245,7 +245,6 @@ ignore = [
     "UP042",   # replace-str-enum (20 hits)
     "E402",    # module-import-not-at-top-of-file (16 hits)
     "TC003",   # typing-only-standard-library-import (12 hits)
-    "B904",    # raise-without-from-inside-except (11 hits)
     "S110",    # try-except-pass (10 hits) — review each for intent
     "S112",    # try-except-continue (9 hits) — review each for intent
     "SIM105",  # suppressible-exception (8 hits)

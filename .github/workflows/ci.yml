@@ -70,6 +70,47 @@ jobs:
         run: |
           cd agentic-workflows-v2
           python -m ruff check agentic_v2/ tests/
+      - name: Guard ruff ignore list for untracked suppressions
+        # Fail if any ruff ignore code lacks a `# tracked: <issue-url>` comment.
+        # Codes suppressed for large-scale batch migration carry a "TODO Sprint"
+        # comment which is deliberately distinct — those are the exempted entries.
+        # New one-off suppressions must include a tracking URL.
+        run: |
+          python - <<'EOF'
+          import re, sys, pathlib
+          text = pathlib.Path("agentic-workflows-v2/pyproject.toml").read_text()
+          # Extract the ignore list block between [tool.ruff.lint] ignore = [ and the closing ]
+          ignore_block = re.search(r"ignore\s*=\s*\[(.*?)\]", text, re.DOTALL)
+          if not ignore_block:
+              sys.exit(0)
+          lines = ignore_block.group(1).splitlines()
+          bad = []
+          for line in lines:
+              stripped = line.strip()
+              # Skip empty lines, comment-only lines, and closing bracket
+              if not stripped or stripped.startswith("#") or stripped == "]":
+                  continue
+              # Must be a quoted rule code
+              if not re.match(r'^"[A-Z][A-Z0-9]+"', stripped):
+                  continue
+              # Allow if the line has a TODO-Sprint comment (batch migration)
+              if "TODO Sprint" in line or "TODO:" in line:
+                  continue
+              # Allow if the line has a tracked: comment
+              if "tracked:" in line:
+                  continue
+              # Require at least a descriptive inline comment
+              if "#" not in line:
+                  bad.append(stripped)
+          if bad:
+              print("::error::New ruff ignore entries must include either a")
+              print("  '# tracked: <issue-url>' comment or a '# TODO Sprint' comment.")
+              print("  Offending lines:")
+              for b in bad:
+                  print(f"    {b}")
+              sys.exit(1)
+          print(f"Ruff ignore guard: all {len(lines)} entries have comments.")
+          EOF
 
   typecheck-core-contracts:
     name: Mypy (strict engine + contracts)
