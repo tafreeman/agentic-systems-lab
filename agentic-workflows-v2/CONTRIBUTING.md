@@ -2,7 +2,7 @@
 
 > **Scope:** this file covers contributions specific to the `agentic-workflows-v2/` package (runtime + UI).
 > For monorepo-wide policy — local gates, commit format, when to write an ADR, the PR checklist — see the root [`CONTRIBUTING.md`](../CONTRIBUTING.md).
-> **Last verified:** 2026-04-22
+> **Last verified:** 2026-06-11
 
 Thanks for contributing. This project uses docs-as-code, typed contracts, and test-first changes.
 
@@ -106,6 +106,24 @@ also fail CI on the next regeneration.
 - Prefer explicit schemas/contracts over untyped dicts.
 - Keep workflow YAML declarative; avoid hidden runtime coupling.
 - Add concise comments only where behavior is non-obvious.
+
+## Runtime artifact hygiene
+
+Runtime artifacts written by this package must never be staged or committed. The patterns are enforced by `.gitignore` files; do not bypass them with `git add -f`.
+
+| Artifact | Pattern |
+|----------|---------|
+| `runs/*.json` — workflow-run logs | `runs/` in this directory's `.gitignore` |
+| `.agentic_memory.json` — agent session state | `.agentic_memory.json` in root `.gitignore` |
+
+If you add a feature that writes new runtime output, add the corresponding `.gitignore` pattern in the same PR and verify with:
+
+```bash
+git check-ignore -v <path>
+git ls-files <path>   # must be empty
+```
+
+Full policy and verification commands: root [`CONTRIBUTING.md §8`](../CONTRIBUTING.md#8-runtime-artifact-hygiene).
 
 ## Security
 

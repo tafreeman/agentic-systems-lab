@@ -2,7 +2,7 @@
 
 > **Audience:** Anyone landing their first PR on this monorepo.
 > **Outcome:** After reading this, you can clone, change code, pass local gates, and open a merge-ready PR.
-> **Last verified:** 2026-04-22
+> **Last verified:** 2026-06-11
 
 If you just want to run the platform, start at [`docs/ONBOARDING.md`](docs/ONBOARDING.md) — it takes ~5 minutes to a first workflow run. This file is for contributors who intend to land code.
 
@@ -179,7 +179,42 @@ Docs must be runnable or falsifiable. Command blocks must actually work. Diagram
 
 ---
 
-## 8. Security
+## 8. Runtime artifact hygiene
+
+Several directories and files produced at runtime are **never** committed. They are excluded by root `.gitignore` rules. Do not stage or force-add them.
+
+| Artifact family | Gitignore pattern | Why it must stay out |
+|---|---|---|
+| `runs/` — workflow-run JSON logs | `/runs/` (line ~359) | Contains LLM inputs/outputs and may hold PII or sensitive prompts |
+| `agentic-workflows-v2/runs/` — same, under the sub-package | `runs/` in `agentic-workflows-v2/.gitignore` | Same as above |
+| `.agentic_memory.json` | `.agentic_memory.json` (root `.gitignore`) | Agent-session state; may contain workspace-local secrets or paths |
+| `tools/llm/windows_ai_bridge/bin/` and `obj/` | `[Bb]in/` / `[Oo]bj/` (lines ~37-38) | .NET build output; binary artifacts should never enter the tree |
+
+### Verification commands
+
+```bash
+# Confirm no run logs are tracked
+git ls-files runs/ agentic-workflows-v2/runs/
+
+# Confirm all three families are ignored
+git check-ignore -v runs/ .agentic_memory.json \
+  agentic-workflows-v2/runs/ agentic-workflows-v2/.agentic_memory.json \
+  tools/llm/windows_ai_bridge/bin tools/llm/windows_ai_bridge/obj
+```
+
+Both commands should produce no output / only gitignore-rule lines respectively. If a pattern is missing for a new artifact family, add it to the appropriate `.gitignore` **in the same PR** as the feature that produces the artifact.
+
+### PR checklist addition
+
+Add this item to your PR description when you add a feature that writes files at runtime:
+
+```markdown
+- [ ] New runtime output paths are covered by .gitignore (verified with `git check-ignore -v`)
+```
+
+---
+
+## 9. Security
 
 - Never commit secrets, API keys, or production tokens. `.env` is gitignored; `.env.example` is the only committed template.
 - Resolve runtime secrets through `agentic_v2.models.secrets.get_secret()` / `get_first_secret()` — not `os.environ` directly.
@@ -188,18 +223,18 @@ Docs must be runnable or falsifiable. Command blocks must actually work. Diagram
 
 ---
 
-## 9. AI-assisted development
+## 10. AI-assisted development
 
 This is a research lab, and parts of it were built with AI-assisted tooling (LLM coding assistants) under human review. We disclose this openly rather than hide it.
 
 - **Human ownership.** Every change — AI-assisted or hand-written — is owned by the contributor who opens the PR. You are accountable for what you submit: you must understand it, be able to explain it, and stand behind its correctness and licensing.
-- **AI output is untrusted input.** Consistent with §8, treat anything an assistant generates as a draft to be verified, not trusted code. It passes the same gates as everything else — lint, types, tests, coverage, and review (CONTRIBUTING §4) — before it lands.
+- **AI output is untrusted input.** Consistent with §9, treat anything an assistant generates as a draft to be verified, not trusted code. It passes the same gates as everything else — lint, types, tests, coverage, and review (CONTRIBUTING §4) — before it lands.
 - **No lowered bar.** AI assistance is not a justification for skipping tests, ADRs, or docs. The review standard is identical regardless of how the code was produced.
 - **Disclosure.** If a change is substantially AI-generated, a one-line note in the PR description is welcome (not required) so reviewers can calibrate scrutiny.
 
 ---
 
-## 10. Need help
+## 11. Need help
 
 - Open a discussion or issue on the repository.
 - Read [`docs/GLOSSARY.md`](docs/GLOSSARY.md) for domain terms.
@@ -208,7 +243,7 @@ This is a research lab, and parts of it were built with AI-assisted tooling (LLM
 
 ---
 
-## 11. PR checklist
+## 12. PR checklist
 
 Copy into your PR description:
 
@@ -220,5 +255,6 @@ Copy into your PR description:
 - [ ] ADR added (or confirmed not required — see CONTRIBUTING §6)
 - [ ] Docs updated per CONTRIBUTING §7 table
 - [ ] No secrets, no `.env` committed
+- [ ] New runtime output paths (if any) added to .gitignore — see CONTRIBUTING §8
 - [ ] Commit message follows conventional format
 ```
