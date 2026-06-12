@@ -769,3 +769,132 @@ class TestNullSafeAndCoalesce:
         evaluator = ExpressionEvaluator(ctx, {})
         result = evaluator.resolve_variable("steps.missing.outputs.code")
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Wave-2 security regression tests
+#
+# These vectors were identified in the Wave-2 code-review audit:
+#   1. Callable allowlist bypass — arbitrary method invocation
+#   2. str.format dunder bypass via C-level format machinery
+#   3. Sequence-multiply DoS (memory exhaustion)
+#   4. Dict-spread (**) silent semantic drop
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.security
+class TestWave2CallableAllowlist:
+    """Only coalesce() may be called; everything else raises ValueError."""
+
+    def test_method_call_on_string_context_value_rejected(self) -> None:
+        """data.upper() — method call on a context string must be rejected."""
+        ctx = ExecutionContext()
+        ctx.set_sync("data", "hello")
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Only coalesce"):
+            evaluator._safe_eval("data.upper()")
+
+    def test_method_call_with_args_rejected(self) -> None:
+        """data.split(':') — method call with argument must be rejected."""
+        ctx = ExecutionContext()
+        ctx.set_sync("data", "key:value")
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Only coalesce"):
+            evaluator._safe_eval("data.split(':')")
+
+    def test_str_format_dunder_bypass_globals(self) -> None:
+        """'{0.__globals__}'.format(coalesce) bypasses dunder AST check via
+        str.format — must be rejected at the callable allowlist, not just AST."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # The format() call is the outer ast.Call; the dunder is inside a string
+        # literal and never reaches the AST dunder guard.  The callable guard
+        # must catch it because str.format is not _coalesce.
+        with pytest.raises(ValueError, match="Only coalesce"):
+            evaluator._safe_eval("'{0.__globals__}'.format(coalesce)")
+
+    def test_str_format_dunder_bypass_class_mro(self) -> None:
+        """'{0.__class__.__mro__}'.format(ctx) — information disclosure via
+        str.format dunder bypass must be rejected by the callable allowlist."""
+        ctx = ExecutionContext()
+        ctx.set_sync("x", "value")
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Only coalesce"):
+            evaluator._safe_eval("'{0.__class__.__mro__}'.format(x)")
+
+    def test_format_map_dunder_bypass_rejected(self) -> None:
+        """'{x.__class__}'.format_map({'x': coalesce}) — format_map variant
+        of the same dunder bypass; callable allowlist must reject it."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Only coalesce"):
+            evaluator._safe_eval("'{x.__class__}'.format_map({'x': coalesce})")
+
+    def test_coalesce_still_works_after_allowlist(self) -> None:
+        """Positive: coalesce() must still be callable after the allowlist fix."""
+        ctx = ExecutionContext()
+        ctx.set_sync("val", None)
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("coalesce(val, 'fallback')")
+        assert result == "fallback"
+
+
+@pytest.mark.security
+class TestWave2SequenceMultiplyDoS:
+    """Sequence-multiply with an oversized int must raise ValueError."""
+
+    def test_string_mult_large_int_rejected(self) -> None:
+        """'a' * 100001 — single step over the cap must be rejected."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Sequence multiply"):
+            evaluator._safe_eval("'a' * 100001")
+
+    def test_string_mult_chained_large_rejected(self) -> None:
+        """'a' * 100000 * 100000 — chained multiply must be rejected at the
+        first over-limit operand."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Sequence multiply"):
+            evaluator._safe_eval("'a' * 100000 * 100000")
+
+    def test_list_mult_large_int_rejected(self) -> None:
+        """[0] * 100001 — list repeat over the cap must be rejected."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Sequence multiply"):
+            evaluator._safe_eval("[0] * 100001")
+
+    def test_string_mult_small_allowed(self) -> None:
+        """'ab' * 5 — small sequence multiply must still be allowed."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        assert evaluator._safe_eval("'ab' * 5") == "ababababab"
+
+    def test_numeric_mult_large_allowed(self) -> None:
+        """10000 * 10000 — large numeric multiply must NOT be rejected."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("10000 * 10000")
+        assert result == 100_000_000
+
+
+@pytest.mark.security
+class TestWave2DictSpread:
+    """Dict-spread (**) must raise ValueError instead of silently dropping."""
+
+    def test_dict_spread_raises(self) -> None:
+        """{**d} in an expression must raise ValueError, not silently drop the entry."""
+        ctx = ExecutionContext()
+        ctx.set_sync("d", {"key": "value"})
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="dict unpacking"):
+            evaluator._safe_eval("{**d}")
+
+    def test_dict_spread_mixed_raises(self) -> None:
+        """{'a': 1, **d} — spread mixed with normal keys must also raise."""
+        ctx = ExecutionContext()
+        ctx.set_sync("d", {"b": 2})
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="dict unpacking"):
+            evaluator._safe_eval("{'a': 1, **d}")
