@@ -29,24 +29,6 @@ from types import SimpleNamespace
 from typing import Any, Awaitable, Callable, Mapping
 
 from ..contracts import StepStatus, WorkflowResult
-from ..langchain.config import load_workflow_config
-from ..langchain.dependencies import (
-    is_missing_langchain_dependency_error,
-    to_missing_langchain_dependency_error,
-)
-
-# LangChain imports — optional.
-try:
-    from ..langchain import WorkflowRunner as LangChainRunner
-
-    _LANGCHAIN_AVAILABLE = True
-    _LANGCHAIN_IMPORT_ERROR: ImportError | None = None
-except ImportError as exc:
-    if not is_missing_langchain_dependency_error(exc):
-        raise
-    _LANGCHAIN_AVAILABLE = False
-    _LANGCHAIN_IMPORT_ERROR = to_missing_langchain_dependency_error()
-
 from ..integrations.otel import create_trace_adapter
 from ..workflows.run_logger import RunLogger
 from . import websocket
@@ -56,28 +38,45 @@ from .result_normalization import as_dict, extract_tokens, normalize_workflow_re
 
 logger = logging.getLogger(__name__)
 
-# LangChain runner — lazily initialised so the server starts without langchain
+# LangChain runner — lazily initialised on first langchain-adapter request
+# so that importing this module never triggers the LangGraph DeprecationWarning.
 _lc_runner = None
 run_logger = RunLogger()
 
 
-def _get_lc_runner():
-    """Lazily initialize the LangChain runner."""
+def _get_lc_runner() -> Any:
+    """Lazily import and initialise the LangChain runner singleton.
+
+    All ``agentic_v2.langchain`` imports are deferred to here so that
+    importing ``agentic_v2.server.execution`` (and by extension starting
+    the server) never triggers the :class:`DeprecationWarning` emitted by
+    ``agentic_v2/langchain/__init__.py``.  The warning fires only when an
+    explicit ``adapter=langchain`` request arrives.
+
+    Raises:
+        fastapi.HTTPException: (501) if the langchain extras are not
+            installed or the optional dependencies are missing.
+    """
     global _lc_runner
-    if not _LANGCHAIN_AVAILABLE:
+    from ..langchain.dependencies import (
+        is_missing_langchain_dependency_error,
+        to_missing_langchain_dependency_error,
+    )
+
+    try:
+        from ..langchain import WorkflowRunner as LangChainRunner
+    except ImportError as exc:
         from fastapi import HTTPException
 
-        detail = (
-            str(_LANGCHAIN_IMPORT_ERROR)
-            if _LANGCHAIN_IMPORT_ERROR is not None
-            else "LangChain extras not installed. Install with: pip install -e '.[langchain]'"
-        )
-        raise HTTPException(
-            status_code=501,
-            detail=detail,
-        )
+        if is_missing_langchain_dependency_error(exc):
+            err = to_missing_langchain_dependency_error()
+            raise HTTPException(status_code=501, detail=str(err)) from exc
+        raise
+
     if _lc_runner is None:
-        _lc_runner = LangChainRunner(trace_adapter=create_trace_adapter())
+        from ..langchain import WorkflowRunner as _LangChainRunner
+
+        _lc_runner = _LangChainRunner(trace_adapter=create_trace_adapter())
     return _lc_runner
 
 
@@ -328,7 +327,9 @@ async def _stream_and_run(
                         },
                     )
 
-        workflow_cfg = load_workflow_config(workflow_name)
+        from ..langchain.config import load_workflow_config as _load_workflow_config
+
+        workflow_cfg = _load_workflow_config(workflow_name)
         resolved_outputs = _get_lc_runner().resolve_outputs(
             workflow_cfg, aggregated_state
         )

@@ -34,13 +34,29 @@ from ..models import (
     ListEvaluationDatasetsResponse,
 )
 
-# LangChain imports — optional.
-try:
-    from ...langchain import load_workflow_config
+# LangChain availability — checked lazily so that importing this module
+# never triggers the DeprecationWarning in agentic_v2/langchain/__init__.py.
+def _require_langchain_and_get_config() -> Any:
+    """Lazily import and return ``load_workflow_config``; raise 501 on missing deps."""
+    try:
+        from ...langchain import load_workflow_config as _lwc
 
-    _LANGCHAIN_AVAILABLE = True
-except ImportError:
-    _LANGCHAIN_AVAILABLE = False
+        return _lwc
+    except ImportError as _exc:
+        raise HTTPException(
+            status_code=501,
+            detail="LangChain extras not installed. Install with: pip install -e '.[langchain]'",
+        ) from _exc
+
+
+def load_workflow_config(name: str, definitions_dir: Any = None) -> Any:
+    """Module-level shim — delegates to the lazy langchain loader.
+
+    Defined at module level so test fixtures can monkeypatch this name on
+    the ``evaluation_routes`` module without importing the langchain package
+    at module scope.
+    """
+    return _require_langchain_and_get_config()(name)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["evaluation"])
@@ -84,12 +100,8 @@ def _make_sample_summary(
 
 
 def _require_langchain() -> None:
-    """Raise 501 if langchain extras are missing."""
-    if not _LANGCHAIN_AVAILABLE:
-        raise HTTPException(
-            status_code=501,
-            detail="LangChain extras not installed. Install with: pip install -e '.[langchain]'",
-        )
+    """Raise 501 if langchain extras are missing (probing import only)."""
+    _require_langchain_and_get_config()
 
 
 @router.get(
@@ -161,9 +173,10 @@ async def preview_dataset_inputs(
     sample_index: int = 0,
 ):
     """Preview how dataset sample fields will map to workflow inputs."""
-    _require_langchain()
     try:
         workflow_def = load_workflow_config(workflow_name)
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(
             status_code=404, detail=f"Workflow not found: {exc}"
@@ -317,7 +330,7 @@ async def get_dataset_sample_detail(
             break
 
     workflow_preview: dict[str, Any] | None = None
-    if workflow and _LANGCHAIN_AVAILABLE:
+    if workflow:
         try:
             workflow_def = load_workflow_config(workflow)
             compatible, _ = match_workflow_dataset(workflow_def, sample)
@@ -331,6 +344,9 @@ async def get_dataset_sample_detail(
                 workflow_preview = {"compatible": True, "adapted_inputs": adapted}
             else:
                 workflow_preview = {"compatible": False}
+        except (HTTPException, ImportError):
+            # Langchain extras not available — skip preview silently.
+            pass
         except Exception as exc:
             logger.debug("Workflow preview failed for %s: %s", workflow, exc)
 

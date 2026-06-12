@@ -30,19 +30,49 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 
 from ...contracts import StepStatus
-from ...langchain.config import list_workflows as lc_list_workflows
-from ...langchain.config import (
-    load_workflow_config,
-    load_workflow_document,
-    render_workflow_document,
-    save_workflow_document,
-    validate_workflow_document,
-)
-from ...langchain.dependencies import (
-    is_missing_langchain_dependency_error,
-    to_missing_langchain_dependency_error,
-)
 from ...workflows.run_logger import RunLogger
+
+
+def _lc_config() -> Any:
+    """Lazily import and return the agentic_v2.langchain.config module.
+
+    All callers that need the langchain config functions go through this
+    helper so that the DeprecationWarning in agentic_v2/langchain/__init__.py
+    is only triggered by actual langchain-adapter requests, not on startup.
+    """
+    from ...langchain import config as _cfg
+
+    return _cfg
+
+
+def _lc_deps() -> Any:
+    """Lazily import agentic_v2.langchain.dependencies."""
+    from ...langchain import dependencies as _deps
+
+    return _deps
+
+
+def load_workflow_config(name: str, definitions_dir: Any = None) -> Any:
+    """Module-level shim — delegates to langchain.config.load_workflow_config.
+
+    Defined at module level so test fixtures can monkeypatch this name on
+    the ``workflows`` module.  The actual import of the langchain package is
+    deferred to the first call, keeping server startup free of the
+    DeprecationWarning.
+    """
+    return _lc_config().load_workflow_config(name)
+
+
+def load_workflow_document(name: str, definitions_dir: Any = None) -> Any:
+    """Module-level shim — delegates to langchain.config.load_workflow_document."""
+    return _lc_config().load_workflow_document(name)
+
+
+def save_workflow_document(name: str, document: Any, definitions_dir: Any = None) -> Any:
+    """Module-level shim — delegates to langchain.config.save_workflow_document."""
+    return _lc_config().save_workflow_document(name, document)
+
+
 from ..execution import _run_and_evaluate
 from ..models import (
     ListWorkflowsResponse,
@@ -93,24 +123,25 @@ def _require_langchain_runtime() -> None:
     try:
         from ...langchain import WorkflowRunner
     except ImportError as exc:
-        if is_missing_langchain_dependency_error(exc):
+        deps = _lc_deps()
+        if deps.is_missing_langchain_dependency_error(exc):
             raise HTTPException(
                 status_code=501,
-                detail=str(to_missing_langchain_dependency_error()),
+                detail=str(deps.to_missing_langchain_dependency_error()),
             ) from exc
         raise
-    _ = WorkflowRunner
 
 
-def _compile_workflow_for_validation(config) -> None:
+def _compile_workflow_for_validation(config: Any) -> None:
     """Validate workflow graph topology without executing it."""
     try:
         from ...langchain.graph import compile_workflow
     except ImportError as exc:
-        if is_missing_langchain_dependency_error(exc):
+        deps = _lc_deps()
+        if deps.is_missing_langchain_dependency_error(exc):
             raise HTTPException(
                 status_code=501,
-                detail=str(to_missing_langchain_dependency_error()),
+                detail=str(deps.to_missing_langchain_dependency_error()),
             ) from exc
         raise
 
@@ -122,8 +153,9 @@ def _workflow_editor_response(
     path: str,
     document: dict[str, Any],
     yaml_text: str,
-):
-    config = validate_workflow_document(document, expected_name=name)
+) -> WorkflowEditorResponse:
+    cfg = _lc_config()
+    config = cfg.validate_workflow_document(document, expected_name=name)
     return WorkflowEditorResponse(
         name=config.name,
         path=path,
@@ -134,9 +166,9 @@ def _workflow_editor_response(
 
 
 @router.get("/workflows", response_model=ListWorkflowsResponse)
-async def list_workflows():
+async def list_workflows() -> ListWorkflowsResponse:
     """List available workflows."""
-    workflows = lc_list_workflows()
+    workflows = _lc_config().list_workflows()
     return ListWorkflowsResponse(workflows=workflows)
 
 
@@ -216,7 +248,7 @@ async def get_workflow_capabilities(name: str):
 
 
 @router.get("/workflows/{name}/editor", response_model=WorkflowEditorResponse)
-async def get_workflow_editor(name: str):
+async def get_workflow_editor(name: str) -> WorkflowEditorResponse:
     """Return the raw YAML workflow document for editor clients."""
     try:
         path, document, yaml_text = load_workflow_document(name)
@@ -228,13 +260,13 @@ async def get_workflow_editor(name: str):
 
 
 @router.put("/workflows/{name}", response_model=WorkflowEditorResponse)
-async def save_workflow_editor(name: str, request: WorkflowEditorRequest):
+async def save_workflow_editor(name: str, request: WorkflowEditorRequest) -> WorkflowEditorResponse:
     """Validate and persist a workflow document."""
     try:
         path, persisted_document, _config, yaml_text = save_workflow_document(
             name, request.document
         )
-        load_workflow_config.cache_clear()
+        _lc_config().load_workflow_config.cache_clear()
         return _workflow_editor_response(
             name,
             str(path),
@@ -254,20 +286,21 @@ async def save_workflow_editor(name: str, request: WorkflowEditorRequest):
     "/workflows/validate",
     response_model=WorkflowValidationResponse,
 )
-async def validate_workflow_editor(request: WorkflowEditorRequest):
+async def validate_workflow_editor(request: WorkflowEditorRequest) -> WorkflowValidationResponse:
     """Validate a workflow document without persisting it."""
     document = request.document
+    cfg = _lc_config()
     try:
         if not isinstance(document, dict):
             raise ValueError("Workflow document must be a mapping.")
         expected_name = document.get("name")
-        config = validate_workflow_document(document, expected_name=expected_name)
+        config = cfg.validate_workflow_document(document, expected_name=expected_name)
         _compile_workflow_for_validation(config)
         return WorkflowValidationResponse(
             valid=True,
             name=config.name,
             step_count=len(config.steps),
-            yaml_text=render_workflow_document(document),
+            yaml_text=cfg.render_workflow_document(document),
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
