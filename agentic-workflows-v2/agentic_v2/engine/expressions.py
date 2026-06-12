@@ -17,6 +17,14 @@ from datetime import timezone
 from types import SimpleNamespace
 from typing import Any, cast
 
+# ---------------------------------------------------------------------------
+# Safety limits for the AST interpreter
+# ---------------------------------------------------------------------------
+
+# Maximum int multiplier allowed when one operand is a sequence (str/bytes/
+# list/tuple).  Prevents memory-exhaustion via ``"a" * 10000 * 10000``.
+_MAX_SEQUENCE_MULTIPLY: int = 10_000
+
 from ..contracts import StepResult
 from .context import ExecutionContext
 
@@ -373,6 +381,21 @@ class ExpressionEvaluator:
                 raise ValueError(f"Unsupported binary operator: {type(node.op).__name__}")
             left = self._eval_node(node.left, env)
             right = self._eval_node(node.right, env)
+            # Guard sequence-multiply DoS: reject if a str/bytes/list/tuple is
+            # being multiplied by an int that would create an oversized sequence.
+            if isinstance(node.op, ast.Mult):
+                if isinstance(left, (str, bytes, list, tuple)) and isinstance(right, int):
+                    if right > _MAX_SEQUENCE_MULTIPLY:
+                        raise ValueError(
+                            f"Sequence multiply exceeds maximum allowed size "
+                            f"({right} > {_MAX_SEQUENCE_MULTIPLY})"
+                        )
+                elif isinstance(right, (str, bytes, list, tuple)) and isinstance(left, int):
+                    if left > _MAX_SEQUENCE_MULTIPLY:
+                        raise ValueError(
+                            f"Sequence multiply exceeds maximum allowed size "
+                            f"({left} > {_MAX_SEQUENCE_MULTIPLY})"
+                        )
             return op_fn(left, right)
 
         if isinstance(node, ast.UnaryOp):
@@ -412,8 +435,19 @@ class ExpressionEvaluator:
             return True
 
         if isinstance(node, ast.Call):
-            # Only ``coalesce`` is permitted at eval time.
+            # Enforce strict allowlist by identity: only the _coalesce function
+            # (exposed as "coalesce" in the evaluation environment) may be called.
+            # Resolving the callable and checking it by identity before invocation
+            # simultaneously blocks arbitrary method calls (e.g. data.upper(),
+            # data.split(':')) and the str.format dunder-bypass vector
+            # ('{0.__globals__}'.format(coalesce)) because str.format is not
+            # the allowed callable.
             func = self._eval_node(node.func, env)
+            if func is not _coalesce:
+                raise ValueError(
+                    "Only coalesce() may be called in expressions; "
+                    f"got {func!r}"
+                )
             args = [self._eval_node(arg, env) for arg in node.args]
             return func(*args)
 
@@ -424,11 +458,16 @@ class ExpressionEvaluator:
             return tuple(self._eval_node(elt, env) for elt in node.elts)
 
         if isinstance(node, ast.Dict):
-            return {
-                self._eval_node(k, env): self._eval_node(v, env)
-                for k, v in zip(node.keys, node.values)
-                if k is not None
-            }
+            result_dict: dict[Any, Any] = {}
+            for k, v in zip(node.keys, node.values):
+                if k is None:
+                    # None key means a ``{**spread}`` unpacking expression —
+                    # not supported in the sandbox (silent drop was a bug).
+                    raise ValueError(
+                        "dict unpacking (**) is not supported in expressions"
+                    )
+                result_dict[self._eval_node(k, env)] = self._eval_node(v, env)
+            return result_dict
 
         raise ValueError(f"Unsupported expression element: {type(node).__name__}")
 
