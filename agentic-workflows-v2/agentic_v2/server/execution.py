@@ -25,6 +25,7 @@ import logging
 import os
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Awaitable, Callable, Mapping
 
@@ -37,6 +38,24 @@ from .judge import LLMJudge
 from .result_normalization import as_dict, extract_tokens, normalize_workflow_result
 
 logger = logging.getLogger(__name__)
+
+
+def load_workflow_config(
+    name: str,
+    definitions_dir: Path | None = None,
+) -> Any:
+    """Lazy shim: defers the deprecated langchain import until actually called.
+
+    Exposes ``load_workflow_config`` as a patchable module-level attribute
+    without importing ``agentic_v2.langchain`` at module load time (which
+    would trigger its :class:`DeprecationWarning`).
+    """
+    from ..langchain.config import load_workflow_config as _impl  # lazy — no import-time DeprecationWarning
+
+    if definitions_dir is not None:
+        return _impl(name, definitions_dir)
+    return _impl(name)
+
 
 # LangChain runner — lazily initialised on first langchain-adapter request
 # so that importing this module never triggers the LangGraph DeprecationWarning.
@@ -327,9 +346,7 @@ async def _stream_and_run(
                         },
                     )
 
-        from ..langchain.config import load_workflow_config as _load_workflow_config
-
-        workflow_cfg = _load_workflow_config(workflow_name)
+        workflow_cfg = load_workflow_config(workflow_name)
         resolved_outputs = _get_lc_runner().resolve_outputs(
             workflow_cfg, aggregated_state
         )
