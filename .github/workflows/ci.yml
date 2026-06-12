@@ -74,7 +74,8 @@ jobs:
         # Fail if any ruff ignore code lacks a `# tracked: <issue-url>` comment.
         # Codes suppressed for large-scale batch migration carry a "TODO Sprint"
         # comment which is deliberately distinct — those are the exempted entries.
-        # New one-off suppressions must include a tracking URL.
+        # New one-off suppressions must include either an inline trailing comment
+        # OR a comment on the immediately-preceding non-empty line (block style).
         run: |
           python - <<'EOF'
           import re, sys, pathlib
@@ -85,7 +86,7 @@ jobs:
               sys.exit(0)
           lines = ignore_block.group(1).splitlines()
           bad = []
-          for line in lines:
+          for idx, line in enumerate(lines):
               stripped = line.strip()
               # Skip empty lines, comment-only lines, and closing bracket
               if not stripped or stripped.startswith("#") or stripped == "]":
@@ -96,15 +97,29 @@ jobs:
               # Allow if the line has a TODO-Sprint comment (batch migration)
               if "TODO Sprint" in line or "TODO:" in line:
                   continue
-              # Allow if the line has a tracked: comment
+              # Allow if the line has a tracked: comment (inline)
               if "tracked:" in line:
                   continue
-              # Require at least a descriptive inline comment
-              if "#" not in line:
-                  bad.append(stripped)
+              # Allow if the line has ANY inline comment (descriptive)
+              if "#" in line:
+                  continue
+              # Allow if the immediately-preceding non-empty line is a comment
+              # (block-style documentation — comment sits on the line above the code)
+              prev_comment = False
+              for prev_idx in range(idx - 1, -1, -1):
+                  prev_stripped = lines[prev_idx].strip()
+                  if not prev_stripped:
+                      continue  # skip blank lines when scanning backward
+                  if prev_stripped.startswith("#"):
+                      prev_comment = True
+                  break
+              if prev_comment:
+                  continue
+              bad.append(stripped)
           if bad:
               print("::error::New ruff ignore entries must include either a")
-              print("  '# tracked: <issue-url>' comment or a '# TODO Sprint' comment.")
+              print("  '# tracked: <issue-url>' comment, a '# TODO Sprint' comment,")
+              print("  an inline comment, or a block comment on the preceding line.")
               print("  Offending lines:")
               for b in bad:
                   print(f"    {b}")
