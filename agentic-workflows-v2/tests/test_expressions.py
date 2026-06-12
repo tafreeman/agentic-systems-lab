@@ -898,3 +898,431 @@ class TestWave2DictSpread:
         evaluator = ExpressionEvaluator(ctx)
         with pytest.raises(ValueError, match="dict unpacking"):
             evaluator._safe_eval("{'a': 1, **d}")
+
+
+# ---------------------------------------------------------------------------
+# Wave-2 coverage gap tests
+#
+# These tests target missed lines identified in the post-wave-2 coverage run.
+# Each test exercises a real interpreter path and asserts correct semantics.
+# ---------------------------------------------------------------------------
+
+
+class TestNullSafeInternals:
+    """Test _NullSafe sentinel internals: __ne__, __hash__, __repr__."""
+
+    def test_nullsafe_ne_none_returns_false(self) -> None:
+        """_NullSafe() != None must return False (NullSafe IS semantically None)."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        ns = _NullSafe()
+        # __ne__ for None must return False
+        assert (ns != None) is False  # intentional: E711 is globally ignored; tests __ne__(None)
+
+    def test_nullsafe_ne_another_nullsafe_returns_false(self) -> None:
+        """_NullSafe() != _NullSafe() must return False."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        a = _NullSafe()
+        b = _NullSafe()
+        assert (a != b) is False
+
+    def test_nullsafe_ne_real_value_returns_not_implemented(self) -> None:
+        """_NullSafe() != 'real' must be truthy (not equal to a real value)."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        ns = _NullSafe()
+        # __ne__ returns NotImplemented for real values, Python then falls back
+        # to identity check which returns True (they differ).
+        assert ns != "real_value"
+
+    def test_nullsafe_hash_equals_none_hash(self) -> None:
+        """_NullSafe hash must equal hash(None) so it works as a dict key."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        ns = _NullSafe()
+        assert hash(ns) == hash(None)
+
+    def test_nullsafe_repr(self) -> None:
+        """_NullSafe repr must return the sentinel string."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        ns = _NullSafe()
+        assert repr(ns) == "NullSafe(None)"
+
+
+class TestFromNamespaceConversions:
+    """Test _from_namespace conversion of NullSafe, dicts, and lists."""
+
+    def test_from_namespace_nullsafe_returns_none(self) -> None:
+        """_from_namespace(_NullSafe()) must return None."""
+        from agentic_v2.engine.expressions import _NullSafe, _from_namespace
+
+        assert _from_namespace(_NullSafe()) is None
+
+    def test_from_namespace_nested_dict(self) -> None:
+        """_from_namespace recurses into plain dicts."""
+        from agentic_v2.engine.expressions import _from_namespace
+
+        result = _from_namespace({"a": {"b": 1}})
+        assert result == {"a": {"b": 1}}
+
+    def test_from_namespace_list_with_nullsafe(self) -> None:
+        """_from_namespace converts list elements including _NullSafe to None."""
+        from agentic_v2.engine.expressions import _NullSafe, _from_namespace
+
+        result = _from_namespace([1, _NullSafe(), "x"])
+        assert result == [1, None, "x"]
+
+
+class TestEvaluateFallbackBranch:
+    """AttributeError/SyntaxError fallback: non-'not in'/'!=' expressions return False."""
+
+    def test_missing_attribute_eq_returns_false(self) -> None:
+        """${steps.missing.status == 'success'} falls back to False (not True)."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # steps.missing does not exist; == check → fallback returns False
+        result = evaluator.evaluate("${steps.missing.status == 'success'}")
+        assert result is False
+
+    def test_missing_attribute_in_list_returns_false(self) -> None:
+        """${steps.missing.status in ['success']} falls back to False."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator.evaluate("${steps.missing.status in ['success']}")
+        # 'in' check → fallback returns False (NullSafe not in ['success'] is True
+        # at Python level but we go through _safe_eval path, not the fallback)
+        # The actual path: _safe_eval succeeds (NullSafe not in list), returns False
+        assert result is False
+
+    def test_missing_attribute_not_in_returns_true(self) -> None:
+        """${steps.missing.status not in ['APPROVED']} falls back to True."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # NullSafe not in list → True via fallback semantics
+        result = evaluator.evaluate("${steps.missing.status not in ['APPROVED']}")
+        assert result is True
+
+
+class TestASTInterpreterNodeTypes:
+    """Test interpreter paths for Tuple, Dict, Subscript, and BoolOp edge cases."""
+
+    def test_tuple_literal_evaluated(self) -> None:
+        """Tuple literal (1, 2, 3) must evaluate to a Python tuple."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("(1, 2, 3)")
+        assert result == (1, 2, 3)
+        assert isinstance(result, tuple)
+
+    def test_tuple_used_in_comparison(self) -> None:
+        """'x' in ('a', 'x', 'b') must return True via tuple membership."""
+        ctx = ExecutionContext()
+        ctx.set_sync("val", "x")
+        evaluator = ExpressionEvaluator(ctx)
+        assert evaluator.evaluate("${val in ('a', 'x', 'b')}") is True
+
+    def test_dict_literal_evaluated(self) -> None:
+        """Dict literal {'key': 'value'} must evaluate to a Python dict."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("{'key': 'value', 'n': 42}")
+        assert result == {"key": "value", "n": 42}
+        assert isinstance(result, dict)
+
+    def test_subscript_on_list_in_context_via_eval(self) -> None:
+        """ctx.items[0] subscript on a list in context must return first element."""
+        ctx = ExecutionContext()
+        ctx.set_sync("items", ["alpha", "beta"])
+        evaluator = ExpressionEvaluator(ctx)
+        # _to_namespace wraps lists as lists (not namespaces), so indexing works
+        result = evaluator._safe_eval("ctx.items[0]")
+        assert result == "alpha"
+
+    def test_subscript_on_list_out_of_bounds_returns_nullsafe(self) -> None:
+        """ctx.items[99] with out-of-bounds index must return _NullSafe."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        ctx = ExecutionContext()
+        ctx.set_sync("items", ["only_one"])
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("ctx.items[99]")
+        assert isinstance(result, _NullSafe)
+
+    def test_subscript_on_non_subscriptable_returns_nullsafe(self) -> None:
+        """Subscript on a non-container (int) must return _NullSafe."""
+        from agentic_v2.engine.expressions import _NullSafe
+
+        ctx = ExecutionContext()
+        ctx.set_sync("num", 42)
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("ctx.num[0]")
+        assert isinstance(result, _NullSafe)
+
+    def test_boolop_and_short_circuits_on_false(self) -> None:
+        """a and b and c: short-circuits and returns the falsy value."""
+        ctx = ExecutionContext()
+        ctx.set_sync("a", True)
+        ctx.set_sync("b", 0)
+        ctx.set_sync("c", True)
+        evaluator = ExpressionEvaluator(ctx)
+        # b is 0 (falsy): short-circuit returns 0, bool(0) == False
+        assert evaluator.evaluate("${ctx.a and ctx.b and ctx.c}") is False
+
+    def test_boolop_or_short_circuits_on_truthy(self) -> None:
+        """a or b: short-circuits on first truthy, returns that value."""
+        ctx = ExecutionContext()
+        ctx.set_sync("a", 0)
+        ctx.set_sync("b", "non-empty")
+        evaluator = ExpressionEvaluator(ctx)
+        # a is 0 (falsy), b is truthy: returns b's value
+        assert evaluator.evaluate("${ctx.a or ctx.b}") is True
+
+    def test_boolop_or_returns_last_value_when_all_falsy(self) -> None:
+        """a or b when both falsy: returns the last value."""
+        ctx = ExecutionContext()
+        ctx.set_sync("a", 0)
+        ctx.set_sync("b", "")
+        evaluator = ExpressionEvaluator(ctx)
+        # Both falsy: returns b (empty string), bool("") == False
+        assert evaluator.evaluate("${ctx.a or ctx.b}") is False
+
+    def test_unary_negation_on_number(self) -> None:
+        """UnaryOp USub (-ctx.x) must negate the number."""
+        ctx = ExecutionContext()
+        ctx.set_sync("x", 5)
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("-ctx.x")
+        assert result == -5
+
+    def test_unary_uadd_on_number(self) -> None:
+        """UnaryOp UAdd (+ctx.x) must return the number unchanged."""
+        ctx = ExecutionContext()
+        ctx.set_sync("x", 7)
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("+ctx.x")
+        assert result == 7
+
+    def test_compare_is_operator(self) -> None:
+        """'is' operator: None is None must be True."""
+        ctx = ExecutionContext()
+        ctx.set_sync("val", None)
+        evaluator = ExpressionEvaluator(ctx)
+        assert evaluator.evaluate("${ctx.val is None}") is True
+
+    def test_compare_is_not_operator(self) -> None:
+        """'is not' operator: 'x' is not None must be True."""
+        ctx = ExecutionContext()
+        ctx.set_sync("val", "something")
+        evaluator = ExpressionEvaluator(ctx)
+        assert evaluator.evaluate("${ctx.val is not None}") is True
+
+    def test_compare_not_in_operator(self) -> None:
+        """'not in' operator: 'z' not in ['a', 'b'] must be True."""
+        ctx = ExecutionContext()
+        ctx.set_sync("items", ["a", "b"])
+        evaluator = ExpressionEvaluator(ctx)
+        assert evaluator.evaluate("${'z' not in ctx.items}") is True
+
+    def test_binop_division(self) -> None:
+        """BinOp Div: 10 / 4 must return 2.5."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("10 / 4")
+        assert result == 2.5
+
+    def test_binop_modulo(self) -> None:
+        """BinOp Mod: 10 % 3 must return 1."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._safe_eval("10 % 3")
+        assert result == 1
+
+    def test_binop_unsupported_operator_raises(self) -> None:
+        """FloorDiv (//) is not in the whitelist and must raise ValueError."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # FloorDiv (//): not in allowed_nodes → rejected at _validate_ast
+        with pytest.raises(ValueError, match="Unsupported"):
+            evaluator._safe_eval("10 // 3")
+
+    def test_binop_eval_node_unsupported_operator_raises(self) -> None:
+        """_eval_node with a BinOp whose operator is not in _BINOP_OPS raises ValueError.
+
+        We bypass _validate_ast by injecting a custom AST node with a recognized
+        BinOp wrapper but a FloorDiv operator that _eval_node doesn't handle.
+        Note: _validate_ast rejects FloorDiv before _eval_node, so we call
+        _eval_node directly with a manually-constructed unsupported-op node.
+        """
+        import ast as ast_mod
+
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # Construct a BinOp(left=Constant(1), op=FloorDiv(), right=Constant(1))
+        # and call _eval_node directly, skipping _validate_ast
+        node = ast_mod.BinOp(
+            left=ast_mod.Constant(value=1),
+            op=ast_mod.FloorDiv(),
+            right=ast_mod.Constant(value=1),
+        )
+        with pytest.raises(ValueError, match="Unsupported binary operator"):
+            evaluator._eval_node(node, {})
+
+    def test_unary_unsupported_operator_raises(self) -> None:
+        """Invert (~x) is not in the whitelist and must raise ValueError."""
+        ctx = ExecutionContext()
+        ctx.set_sync("x", 5)
+        evaluator = ExpressionEvaluator(ctx)
+        # Invert is not in allowed_nodes → rejected at _validate_ast
+        with pytest.raises(ValueError, match="Unsupported"):
+            evaluator._safe_eval("~ctx.x")
+
+    def test_unary_eval_node_unsupported_operator_raises(self) -> None:
+        """_eval_node with a UnaryOp whose operator is not in _UNARYOP_OPS raises ValueError."""
+        import ast as ast_mod
+
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        node = ast_mod.UnaryOp(
+            op=ast_mod.Invert(),
+            operand=ast_mod.Constant(value=5),
+        )
+        with pytest.raises(ValueError, match="Unsupported unary operator"):
+            evaluator._eval_node(node, {})
+
+    def test_unsupported_node_type_raises(self) -> None:
+        """An AST node type outside the whitelist must raise ValueError."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # IfExp (ternary a if cond else b) is not in the allowed list
+        with pytest.raises(ValueError, match="Unsupported"):
+            evaluator._safe_eval("1 if True else 2")
+
+    def test_sequence_multiply_right_operand_oversized_raises(self) -> None:
+        """n * 'seq' where n > _MAX_SEQUENCE_MULTIPLY must raise ValueError."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        with pytest.raises(ValueError, match="Sequence multiply"):
+            evaluator._safe_eval("100001 * 'a'")
+
+
+class TestParsePathBracketSyntax:
+    """Test _parse_path bracket variants: string keys, int keys, non-int fallback."""
+
+    def test_string_key_in_brackets(self) -> None:
+        """a['key'] must parse to ['a', 'key'] (string token)."""
+        tokens = ExpressionEvaluator._parse_path("a['key']")
+        assert tokens == ["a", "key"]
+
+    def test_double_quoted_key_in_brackets(self) -> None:
+        """a["key"] must parse the same as single-quoted."""
+        tokens = ExpressionEvaluator._parse_path('a["key"]')
+        assert tokens == ["a", "key"]
+
+    def test_int_key_in_brackets(self) -> None:
+        """a[2] must parse to ['a', 2] (integer token)."""
+        tokens = ExpressionEvaluator._parse_path("a[2]")
+        assert tokens == ["a", 2]
+
+    def test_unclosed_bracket_returns_empty(self) -> None:
+        """a[unclosed path must return [] (invalid path)."""
+        tokens = ExpressionEvaluator._parse_path("a[0")
+        assert tokens == []
+
+    def test_non_int_bare_key_in_brackets(self) -> None:
+        """a[notanint] (no quotes, not a number) appends the raw string."""
+        tokens = ExpressionEvaluator._parse_path("a[notanint]")
+        assert tokens == ["a", "notanint"]
+
+
+class TestNavigateIntegerKeys:
+    """Test _navigate with integer list indexes and object attribute fallback."""
+
+    def test_navigate_list_with_valid_index(self) -> None:
+        """_navigate into a list with a valid int index returns the element."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._navigate(["x", "y", "z"], [1])
+        assert result == "y"
+
+    def test_navigate_list_with_out_of_bounds_index(self) -> None:
+        """_navigate into a list with out-of-bounds int index returns None."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator._navigate(["x"], [5])
+        assert result is None
+
+    def test_navigate_via_object_attribute(self) -> None:
+        """_navigate on an object with hasattr falls back to getattr."""
+        from types import SimpleNamespace
+
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        ns = SimpleNamespace(foo="bar")
+        result = evaluator._navigate(ns, ["foo"])
+        assert result == "bar"
+
+    def test_navigate_missing_attr_returns_none(self) -> None:
+        """_navigate on an object without the attribute returns None."""
+        from types import SimpleNamespace
+
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        ns = SimpleNamespace(foo="bar")
+        result = evaluator._navigate(ns, ["missing"])
+        assert result is None
+
+
+class TestGetStepViewNormalization:
+    """Test _get_step_view output/outputs normalization edge cases."""
+
+    def test_ctx_step_outputs_without_output_gets_normalized(self) -> None:
+        """A ctx step dict with 'outputs' but no 'output' must gain an 'output' alias."""
+        ctx = ExecutionContext()
+        ctx.set_sync(
+            "steps",
+            {"my_step": {"status": "success", "outputs": {"result": "ok"}}},
+        )
+        evaluator = ExpressionEvaluator(ctx)
+        view = evaluator._get_step_view("my_step")
+        assert isinstance(view, dict)
+        assert view.get("output") == {"result": "ok"}
+
+    def test_ctx_step_with_both_output_and_outputs_not_overwritten(self) -> None:
+        """A ctx step dict with both 'outputs' and 'output' must not be modified."""
+        ctx = ExecutionContext()
+        ctx.set_sync(
+            "steps",
+            {
+                "my_step": {
+                    "status": "success",
+                    "outputs": {"result": "ok"},
+                    "output": {"result": "original"},
+                }
+            },
+        )
+        evaluator = ExpressionEvaluator(ctx)
+        view = evaluator._get_step_view("my_step")
+        assert isinstance(view, dict)
+        # 'output' key already present — must not be overwritten
+        assert view["output"] == {"result": "original"}
+
+    def test_resolve_path_steps_with_bracket_subscript(self) -> None:
+        """steps.my_step.outputs.items[0] resolves through bracket syntax."""
+        ctx = ExecutionContext()
+        ctx.set_sync(
+            "steps",
+            {"my_step": {"outputs": {"items": ["first", "second"]}}},
+        )
+        evaluator = ExpressionEvaluator(ctx)
+        result = evaluator.resolve_variable("steps.my_step.outputs.items[0]")
+        assert result == "first"
+
+    def test_resolve_path_returns_none_for_empty_path(self) -> None:
+        """An invalid (empty after parse) path must return None."""
+        ctx = ExecutionContext()
+        evaluator = ExpressionEvaluator(ctx)
+        # Unclosed bracket → _parse_path returns [] → _resolve_path returns None
+        result = evaluator._resolve_path("a[unclosed")
+        assert result is None
