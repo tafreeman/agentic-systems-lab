@@ -260,12 +260,10 @@ ignore = [
     "RUF012",  # mutable-class-default (3 hits)
     "TC002",   # typing-only-third-party-import (3 hits)
     "C408",    # unnecessary-collection-call (2 hits)
-    "S307",    # suspicious-eval-usage (2 hits) — audit sites separately
     "SIM102",  # collapsible-if (2 hits)
     "C401",    # unnecessary-generator-set (1 hit)
     "N812",    # lowercase-imported-as-non-lowercase (1 hit)
     "RUF005",  # collection-literal-concatenation (1 hit)
-    "RUF006",  # asyncio-dangling-task (1 hit) — review for potential bug
     "SIM101",  # duplicate-isinstance-call (1 hit)
 
     # -------------------------------------------------------------------------

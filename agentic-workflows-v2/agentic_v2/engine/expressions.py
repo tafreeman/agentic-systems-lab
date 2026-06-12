@@ -10,6 +10,7 @@ Supports:
 from __future__ import annotations
 
 import ast
+import operator
 import re
 from dataclasses import dataclass
 from datetime import timezone
@@ -229,7 +230,26 @@ class ExpressionEvaluator:
         return _from_namespace(result)
 
     def _safe_eval(self, expression: str) -> Any:
-        """Safely evaluate a boolean expression with limited syntax."""
+        """Safely evaluate a boolean expression with limited syntax.
+
+        Parses the expression into an AST, validates it against a node
+        whitelist (via :meth:`_validate_ast`), then walks the validated
+        AST node-by-node using :meth:`_eval_node`.  No ``eval()`` or
+        ``compile()`` is invoked — the interpreter is pure Python and
+        cannot be bypassed via dunder introspection even if the AST
+        whitelist were somehow circumvented.
+
+        Args:
+            expression: A restricted Python expression string.
+
+        Returns:
+            The evaluated result value.
+
+        Raises:
+            ValueError: If the AST contains disallowed node types or
+                dunder attribute / name references.
+            NameError: If a name is not present in the evaluation env.
+        """
         tree = ast.parse(expression, mode="eval")
         self._validate_ast(tree)
 
@@ -240,7 +260,7 @@ class ExpressionEvaluator:
         # when-conditions like ${steps.review_code.outputs.review_report.approved}
         # to resolve even when the evaluator has no step_results param.
         step_views = cast(
-            dict[str, StepResultView | dict[str, Any]],
+            "dict[str, StepResultView | dict[str, Any]]",
             self._build_step_views(),
         )
         ctx_steps = all_vars.get("steps")
@@ -249,7 +269,7 @@ class ExpressionEvaluator:
                 if name not in step_views and isinstance(data, dict):
                     step_views[name] = data  # raw dict, _to_namespace handles it
 
-        env = {
+        env: dict[str, Any] = {
             "ctx": self._to_namespace(all_vars),
             "steps": self._to_namespace(step_views),
             "coalesce": _coalesce,
@@ -264,9 +284,153 @@ class ExpressionEvaluator:
                     else value
                 )
 
-        return eval(  # nosec B307 — sandboxed: AST-validated with empty __builtins__
-            compile(tree, "<expr>", "eval"), {"__builtins__": {}}, env
-        )
+        return self._eval_node(tree.body, env)
+
+    # ------------------------------------------------------------------
+    # Pure-Python AST interpreter — replaces eval()
+    # ------------------------------------------------------------------
+
+    _BINOP_OPS: dict[type, Any] = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.Mod: operator.mod,
+    }
+    _UNARYOP_OPS: dict[type, Any] = {
+        ast.USub: operator.neg,
+        ast.UAdd: operator.pos,
+        ast.Not: operator.not_,
+    }
+    _CMPOP_OPS: dict[type, Any] = {
+        ast.Eq: operator.eq,
+        ast.NotEq: operator.ne,
+        ast.Lt: operator.lt,
+        ast.LtE: operator.le,
+        ast.Gt: operator.gt,
+        ast.GtE: operator.ge,
+        ast.Is: operator.is_,
+        ast.IsNot: operator.is_not,
+        ast.In: lambda a, b: a in b,
+        ast.NotIn: lambda a, b: a not in b,
+    }
+
+    def _eval_node(self, node: ast.expr, env: dict[str, Any]) -> Any:
+        """Recursively evaluate a pre-validated AST node.
+
+        Only node types that appear in the ``_validate_ast`` whitelist
+        are handled.  Any other type raises ``ValueError`` — this is a
+        defence-in-depth guard (``_validate_ast`` is always called first).
+
+        Args:
+            node: A validated AST expression node.
+            env: Evaluation environment (names → values).
+
+        Returns:
+            The computed value.
+
+        Raises:
+            ValueError: For disallowed node types or dunder access.
+            NameError: For undefined names.
+            TypeError: For type mismatches in operations.
+        """
+        if isinstance(node, ast.Constant):
+            return node.value
+
+        if isinstance(node, ast.Name):
+            if node.id.startswith("__"):
+                raise ValueError(
+                    f"Dunder name reference is not allowed: {node.id!r}"
+                )
+            if node.id not in env:
+                raise NameError(f"name {node.id!r} is not defined")
+            return env[node.id]
+
+        if isinstance(node, ast.Attribute):
+            if node.attr.startswith("__"):
+                raise ValueError(
+                    f"Dunder attribute access is not allowed: {node.attr!r}"
+                )
+            obj = self._eval_node(node.value, env)
+            if isinstance(obj, dict):
+                return obj.get(node.attr, _NullSafe())
+            return getattr(obj, node.attr, _NullSafe())
+
+        if isinstance(node, ast.Subscript):
+            obj = self._eval_node(node.value, env)
+            key = self._eval_node(node.slice, env)
+            if isinstance(obj, dict):
+                return obj.get(key, _NullSafe())
+            if isinstance(obj, (list, tuple)):
+                if isinstance(key, int) and 0 <= key < len(obj):
+                    return obj[key]
+                return _NullSafe()
+            return _NullSafe()
+
+        if isinstance(node, ast.BinOp):
+            op_fn = self._BINOP_OPS.get(type(node.op))
+            if op_fn is None:
+                raise ValueError(f"Unsupported binary operator: {type(node.op).__name__}")
+            left = self._eval_node(node.left, env)
+            right = self._eval_node(node.right, env)
+            return op_fn(left, right)
+
+        if isinstance(node, ast.UnaryOp):
+            op_fn = self._UNARYOP_OPS.get(type(node.op))
+            if op_fn is None:
+                raise ValueError(f"Unsupported unary operator: {type(node.op).__name__}")
+            operand = self._eval_node(node.operand, env)
+            return op_fn(operand)
+
+        if isinstance(node, ast.BoolOp):
+            if isinstance(node.op, ast.And):
+                result: Any = True
+                for value_node in node.values:
+                    result = self._eval_node(value_node, env)
+                    if not result:
+                        return result
+                return result
+            if isinstance(node.op, ast.Or):
+                result = False
+                for value_node in node.values:
+                    result = self._eval_node(value_node, env)
+                    if result:
+                        return result
+                return result
+            raise ValueError(f"Unsupported boolean operator: {type(node.op).__name__}")
+
+        if isinstance(node, ast.Compare):
+            left = self._eval_node(node.left, env)
+            for op, comparator_node in zip(node.ops, node.comparators):
+                op_fn = self._CMPOP_OPS.get(type(op))
+                if op_fn is None:
+                    raise ValueError(f"Unsupported comparison operator: {type(op).__name__}")
+                right = self._eval_node(comparator_node, env)
+                if not op_fn(left, right):
+                    return False
+                left = right
+            return True
+
+        if isinstance(node, ast.Call):
+            # Only ``coalesce`` is permitted at eval time.
+            func = self._eval_node(node.func, env)
+            args = [self._eval_node(arg, env) for arg in node.args]
+            return func(*args)
+
+        if isinstance(node, ast.List):
+            return [self._eval_node(elt, env) for elt in node.elts]
+
+        if isinstance(node, ast.Tuple):
+            return tuple(self._eval_node(elt, env) for elt in node.elts)
+
+        if isinstance(node, ast.Dict):
+            return {
+                self._eval_node(k, env): self._eval_node(v, env)
+                for k, v in zip(node.keys, node.values)
+                if k is not None
+            }
+
+        raise ValueError(f"Unsupported expression element: {type(node).__name__}")
 
     def _build_step_views(self) -> dict[str, StepResultView]:
         """Convert :class:`StepResult` objects into lightweight :class:`StepResultView`

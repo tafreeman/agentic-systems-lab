@@ -465,6 +465,33 @@ def test_open_not_in_namespace() -> None:
         evaluator._safe_eval("open('/etc/passwd')")
 
 
+@pytest.mark.security
+def test_class_mro_introspection_rejected() -> None:
+    """``().__class__.__bases__`` and ``__mro__`` must be blocked.
+
+    These are canonical sandbox-escape vectors: an attacker who can inject
+    a ``${...}`` expression can normally reach ``object.__subclasses__()``
+    via ``().__class__.__bases__[0].__subclasses__()`` even when
+    ``__builtins__`` is stripped.  The pure-Python AST interpreter never
+    calls ``eval()`` at all, and ``_validate_ast`` additionally blocks all
+    dunder attribute access at the AST level.
+    """
+    ctx = ExecutionContext()
+    evaluator = ExpressionEvaluator(ctx)
+
+    # ().__class__.__bases__ — dunder attribute, must raise ValueError
+    with pytest.raises(ValueError, match=r"[Dd]under|not allowed"):
+        evaluator._safe_eval("().__class__.__bases__")
+
+    # ().__class__.__mro__ — another canonical vector
+    with pytest.raises(ValueError, match=r"[Dd]under|not allowed"):
+        evaluator._safe_eval("().__class__.__mro__")
+
+    # Also verify via the public evaluate() interface (${...} wrapper)
+    with pytest.raises(ValueError, match=r"[Dd]under|not allowed"):
+        evaluator._safe_eval("().__class__.__bases__[0].__subclasses__()")
+
+
 # Positive corpus — legitimate expressions that must continue to work.
 #
 # (expression, ctx_setup, expected_bool_or_sentinel)
