@@ -27,7 +27,7 @@ Three things that don't belong in the main repo but need a home:
 
 **2. Security and tooling sprints** — Hardening work (tool safety, sanitization, sandbox escapes, subprocess env isolation) is prototyped and fully tested here before being upstreamed. Sprint 1 (S1-01 through S1-07) was completed in this repo.
 
-**3. Research library** — Curated source registry, approved domains, and reference material used to gate evaluation outputs (`coverage_score >= 0.80`, `source_quality_score >= 0.80`).
+**3. Multidimensional evaluation scoring** — A scoring engine (`agentic_v2/server/multidimensional_scoring.py`) that classifies evaluation outputs across five orthogonal dimensions — coverage, source quality, agreement, verification, recency — into lettered tiers, gating on thresholds such as `coverage_score >= 0.80` and `source_quality_score >= 0.80`.
 
 ---
 
