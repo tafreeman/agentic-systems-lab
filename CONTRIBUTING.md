@@ -258,3 +258,15 @@ Copy into your PR description:
 - [ ] New runtime output paths (if any) added to .gitignore — see CONTRIBUTING §8
 - [ ] Commit message follows conventional format
 ```
+
+---
+
+## Development Provenance & Verification
+
+This repository is built solo with AI-assisted tooling. Because there is no second human reviewer, correctness is gated by **automated evidence**, not peer sign-off:
+
+- **CI gates (every push / PR):** ruff (with the ignore-comment guard), `mypy --strict` (engine + contracts), the 80% coverage gate (precision=2), the wire-format drift check, and Playwright E2E (×5; nightly 50×). Merges block on a red pipeline.
+- **Behavioral verification:** the `agentic-v2-eval` package and the multidimensional scoring engine gate evaluation outputs.
+- **Provenance:** AI-assisted changes are verified against these gates before merge; the CI and evaluation output is the verification artifact of record.
+
+Contributions are welcome via PR; CI must pass and changes should add or update tests.
