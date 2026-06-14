@@ -1,1 +1,96 @@
-{"version":1,"max_records":1000,"records":[]}
+{
+  "version": 1,
+  "max_records": 1000,
+  "records": [
+    {
+      "timestamp": "2026-05-29T07:45:05.506Z",
+      "latency_ms": 792,
+      "commit": "34fe22f1078608f4482e124b03de5e3476c264ed"
+    },
+    {
+      "timestamp": "2026-05-29T08:22:37.087Z",
+      "latency_ms": 589,
+      "commit": "5012714f5e57f4c53c5ab189c9371495fa2e3860"
+    },
+    {
+      "timestamp": "2026-05-30T07:59:18.188Z",
+      "latency_ms": 888,
+      "commit": "152b9a6967eb2af9742c2d296567d3f11f463fc9"
+    },
+    {
+      "timestamp": "2026-05-31T08:08:52.252Z",
+      "latency_ms": 653,
+      "commit": "c164aa298e6c627678a27db8d22f2e324091381a"
+    },
+    {
+      "timestamp": "2026-06-01T08:57:12.098Z",
+      "latency_ms": 880,
+      "commit": "9e80aeabd1e277b6c501d31dc8abe1683c38e162"
+    },
+    {
+      "timestamp": "2026-06-02T08:38:35.774Z",
+      "latency_ms": 837,
+      "commit": "730d140f788f93f2a773b9a4d67120a17bf548e1"
+    },
+    {
+      "timestamp": "2026-06-03T08:45:04.535Z",
+      "latency_ms": 881,
+      "commit": "730d140f788f93f2a773b9a4d67120a17bf548e1"
+    },
+    {
+      "timestamp": "2026-06-04T08:34:01.053Z",
+      "latency_ms": 850,
+      "commit": "5d40c45867990df9118d801b2e9b8a41f7df8bf1"
+    },
+    {
+      "timestamp": "2026-06-05T08:28:25.460Z",
+      "latency_ms": 923,
+      "commit": "13bf3fb16e4929160b9ce672fead0c3597e5a0be"
+    },
+    {
+      "timestamp": "2026-06-06T08:03:09.962Z",
+      "latency_ms": 946,
+      "commit": "13bf3fb16e4929160b9ce672fead0c3597e5a0be"
+    },
+    {
+      "timestamp": "2026-06-07T08:17:37.256Z",
+      "latency_ms": 887,
+      "commit": "028c5c24b838b1f076ddb5a83d27137d47ed582f"
+    },
+    {
+      "timestamp": "2026-06-08T08:41:01.883Z",
+      "latency_ms": 884,
+      "commit": "e247b5924c38c4717bf12dec14aa83cfe8e2c75d"
+    },
+    {
+      "timestamp": "2026-06-09T08:19:12.786Z",
+      "latency_ms": 780,
+      "commit": "e247b5924c38c4717bf12dec14aa83cfe8e2c75d"
+    },
+    {
+      "timestamp": "2026-06-10T08:29:20.109Z",
+      "latency_ms": 795,
+      "commit": "e247b5924c38c4717bf12dec14aa83cfe8e2c75d"
+    },
+    {
+      "timestamp": "2026-06-11T08:39:22.822Z",
+      "latency_ms": 890,
+      "commit": "ea372bb6c5d7427897d4a258d5ec8e0105c3cef2"
+    },
+    {
+      "timestamp": "2026-06-12T08:37:02.888Z",
+      "latency_ms": 961,
+      "commit": "18d90d4097b014ba9d2a48e29aaed0f1df7bb79b"
+    },
+    {
+      "timestamp": "2026-06-13T08:13:49.580Z",
+      "latency_ms": 775,
+      "commit": "18d90d4097b014ba9d2a48e29aaed0f1df7bb79b"
+    },
+    {
+      "timestamp": "2026-06-14T08:29:41.171Z",
+      "latency_ms": 898,
+      "commit": "c2ba68832d588ae942e6cbfacbd2f706b1e1c87b"
+    }
+  ]
+}
